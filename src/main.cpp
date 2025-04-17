@@ -25,7 +25,7 @@ int main()
     
     triangle.AddDistanceConstraint(0, 1);
     triangle.AddDistanceConstraint(1, 2);
-    triangle.AddDistanceConstraint(2, 0);
+    triangle.AddDistanceConstraint(2, 0, .5f);
     
     triangle.collisionPointMasses = {0, 1, 2};
        
