@@ -11,7 +11,7 @@ void Renderer::DrawLevel(sf::RenderWindow &window, const Level &level, float car
     std::vector<glm::vec2> points = level.GetPoints(carPositionX, fov, precision);
 
     if (points.size() < 2) {
-        std::cout << "ERROR at Renderer::DrawLevel: points.size() < 2";
+        std::cout << "ERROR at Renderer::DrawLevel: points.size() < 2" << std::endl;
         return;
     }
 
