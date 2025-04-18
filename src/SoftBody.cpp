@@ -2,9 +2,10 @@
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/vector_angle.hpp>
 
-void SoftBody::AddPoint(const glm::vec2 &position, float mass, const glm::vec2 &velocity, bool fixed)
+int SoftBody::AddPoint(const glm::vec2 &position, float mass, const glm::vec2 &velocity, bool fixed)
 {
     pointMasses.push_back({position, position, velocity, mass, 0, fixed});
+    return pointMasses.size() - 1;
 }
 
 void SoftBody::AddDistanceConstraint(int a, int b, float compliance)
@@ -25,7 +26,7 @@ void SoftBody::AddVolumeConstraint(const std::vector<int> &pointIndices, float c
         const glm::vec2 &b = pointMasses[pointIndices[(i + 1) % pointIndices.size()]].position;
         restVolume += a.x * b.y - a.y * b.x;
     }
-    restVolume = 0.5f * std::abs(restVolume);
+    restVolume = 0.5f * restVolume;
 
     volumeConstraints.push_back({pointIndices, restVolume, compliance});
 }
@@ -37,9 +38,8 @@ void SoftBody::AddVolumeConstraint(const std::vector<int> &pointIndices, float c
 
 void SoftBody::Simulate(float deltaTime, glm::vec2 gravity)
 {
-    int substeps = 1;
-    float deltaStep = deltaTime / substeps;
-    for (int i = 0; i < substeps; i++)
+    float deltaStep = deltaTime / simulationSubsteps;
+    for (int i = 0; i < simulationSubsteps; i++)
     {
         // integration
         for (auto &p : pointMasses)
@@ -129,4 +129,12 @@ void SoftBody::SolveVolumeConstraints(float deltaTime)
 
 void SoftBody::ResolveGroundCollision(const Level &level, float carPositionX, float fov, float precision)
 {
+}
+
+
+void SoftBody::Clear(){
+    pointMasses.clear();
+    distanceConstraints.clear();
+    collisionPointMasses.clear();
+    volumeConstraints.clear();
 }

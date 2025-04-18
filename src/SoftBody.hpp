@@ -31,8 +31,9 @@ class SoftBody {
     std::vector<DistanceConstraint> distanceConstraints;
     std::vector<int> collisionPointMasses;
     std::vector<VolumeConstraint> volumeConstraints;
+    int simulationSubsteps = 2;
     
-    void AddPoint(const glm::vec2& position, float mass = 1.f, const glm::vec2& velocity = glm::vec2(0,0), bool fixed = false);
+    int AddPoint(const glm::vec2& position, float mass = 1.f, const glm::vec2& velocity = glm::vec2(0,0), bool fixed = false);
     void AddDistanceConstraint(int a, int b, float compliance = 0.0f);
     void AddVolumeConstraint(const std::vector<int>& pointIndices, float compliance = 0.0f);
     void AddVolumeConstraint(const std::vector<int>& pointIndices, float compliance, float volume);
@@ -40,4 +41,5 @@ class SoftBody {
     void SolveVolumeConstraints(float deltaTime);
     void Simulate(float deltaTime, glm::vec2 gravity = glm::vec2(0.0f, -9.8f));
     void ResolveGroundCollision(const Level& level, float carPositionX, float fov, float precision);
+    void Clear();
 };
