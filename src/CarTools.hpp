@@ -9,7 +9,10 @@ void CreateWheel(
     float diskMass,
     float tireMass,
     float tireRatio,
+    float diskHubCompliance,
+    float diskRimCompliance,
     float tireBodyCompliance,
     float tireTreadCompliance,
+    float tirePressureCompliance,
     float tirePressure,
     int radialSegments);

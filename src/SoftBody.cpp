@@ -1,6 +1,10 @@
 #include "SoftBody.hpp"
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/vector_angle.hpp>
+#include <iostream>
+#include <ctime>
+#include <random>
+#include <algorithm>
 
 int SoftBody::AddPoint(const glm::vec2 &position, float mass, const glm::vec2 &velocity, bool fixed)
 {
@@ -67,7 +71,12 @@ void SoftBody::Simulate(float deltaTime, glm::vec2 gravity)
 
 void SoftBody::SolveDistanceConstraints(float deltaTime)
 {
-    for (auto &d : distanceConstraints)
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::vector<DistanceConstraint> randomized = distanceConstraints;
+    std::shuffle(randomized.begin(), randomized.end(), g);
+
+    for (auto &d : randomized)
     {
         PointMass &pA = pointMasses[d.a];
         PointMass &pB = pointMasses[d.b];
@@ -83,7 +92,7 @@ void SoftBody::SolveDistanceConstraints(float deltaTime)
         gradient /= length; // normalize gradient
 
         float c = length - d.restDistance; // constraint value
-        float alpha = d.compliance / deltaTime / deltaTime;
+        float alpha = d.compliance / (deltaTime * deltaTime);
         float s = -c / (wSum + alpha); // scalar, delta Lagrangian multiplier
 
         pA.position += pA.inverseMass * s * gradient;
@@ -93,6 +102,11 @@ void SoftBody::SolveDistanceConstraints(float deltaTime)
 
 void SoftBody::SolveVolumeConstraints(float deltaTime)
 {
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::vector<VolumeConstraint> randomized = volumeConstraints;
+    std::shuffle(randomized.begin(), randomized.end(), g);
+
     for (auto &v : volumeConstraints)
     {
         int pointsCount = v.ids.size();
@@ -100,12 +114,12 @@ void SoftBody::SolveVolumeConstraints(float deltaTime)
         float currentVolume = 0.0f;
         glm::vec2 gradients[pointsCount];
         float wSum = 0.0f;
-        for (size_t i = 0; i < pointsCount; ++i)
+        for (int i = 0; i < pointsCount; ++i)
         {
             const glm::vec2 &prev = pointMasses[v.ids[(i - 1 + pointsCount) % pointsCount]].position;
             const glm::vec2 &curr = pointMasses[v.ids[i]].position;
             const glm::vec2 &next = pointMasses[v.ids[(i + 1) % pointsCount]].position;
-            currentVolume +=  0.5f * (curr.x * next.y - curr.y * next.x);
+            currentVolume += 0.5f * (curr.x * next.y - curr.y * next.x);
 
             glm::vec2 grad = 0.5f * glm::vec2(next.y - prev.y, prev.x - next.x);
             gradients[i] = grad;
@@ -116,10 +130,10 @@ void SoftBody::SolveVolumeConstraints(float deltaTime)
             continue;
 
         float c = currentVolume - v.restVolume; // constraint value
-        float alpha = v.compliance / deltaTime / deltaTime;
+        float alpha = v.compliance / (deltaTime * deltaTime);
         float s = -c / (wSum + alpha); // scalar, delta Lagrangian multiplier
 
-        for (int i = 0; i < pointsCount; ++i)
+        for (int i = 0; i < pointsCount; i++)
         {
             PointMass &p = pointMasses[v.ids[i]];
             p.position += p.inverseMass * s * gradients[i];
@@ -127,12 +141,29 @@ void SoftBody::SolveVolumeConstraints(float deltaTime)
     }
 }
 
-void SoftBody::ResolveGroundCollision(const Level &level, float carPositionX, float fov, float precision)
+void SoftBody::SolveGroundCollision(const Level &level)
 {
+    for (auto &p : pointMasses)
+    {
+        float heightAtPoint = level.GetHeight(p.position.x);
+        if (p.position.y < heightAtPoint)
+        {
+            p.position.y = heightAtPoint;
+            p.velocity.y = -p.velocity.y;
+        }
+        if (p.position.x < 0){
+            p.position.x = 0;
+            p.velocity.x = -p.velocity.x;
+        }
+        if (p.position.x > 2000){
+            p.position.x = 2000;
+            p.velocity.x = -p.velocity.x;
+        }
+    }
 }
 
-
-void SoftBody::Clear(){
+void SoftBody::Clear()
+{
     pointMasses.clear();
     distanceConstraints.clear();
     collisionPointMasses.clear();

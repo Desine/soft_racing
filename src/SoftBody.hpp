@@ -40,6 +40,6 @@ class SoftBody {
     void SolveDistanceConstraints(float deltaTime);
     void SolveVolumeConstraints(float deltaTime);
     void Simulate(float deltaTime, glm::vec2 gravity = glm::vec2(0.0f, -9.8f));
-    void ResolveGroundCollision(const Level& level, float carPositionX, float fov, float precision);
+    void SolveGroundCollision(const Level& level);
     void Clear();
 };

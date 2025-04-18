@@ -9,28 +9,14 @@ void CreateWheel(
     float diskMass,
     float tireMass,
     float tireRatio,
+    float diskHubCompliance,
+    float diskRimCompliance,
     float tireBodyCompliance,
     float tireTreadCompliance,
+    float tirePressureCompliance,
     float tirePressure,
     int radialSegments)
 {
-    /*
-    параметры:
-    wheelRadius - радиус колеса вместе с диском и покрышкой
-    tireRatio - толщина покрышки в процентах от радиуса колеса [0.1; 0.7]
-    tireBodyCompliance
-    tireTreadCompliance
-    tirePressure
-    radialSegments - [3; 30]
-
-
-    расставить точки:
-    диск - 1 точка в центре
-    диск - radialSegments точки соеденены в кольцо и с центральной точкой
-    покрышка - radialSegments точки соеденены в кольцо, compliance = tireTreadCompliance
-    покрышка - radialSegments точки соеденены с с radialSegments диска, compliance = tireBodyCompliance
-    покрышка - кольцо соединено VolumeConstraint с restVolume = currentVolume * tirePressure
-    */
 
     // safety clamp
     radialSegments = std::clamp(radialSegments, 3, 30);
@@ -46,6 +32,7 @@ void CreateWheel(
     float innerRadius = wheelRadius * (1.0f - tireRatio);
     float outerRadius = wheelRadius;
     float angleStep = 2 * M_PI / radialSegments;
+    float halfAngleStep = angleStep * 0.5f;
 
     wheel.AddPoint(center, diskPointMass);
 
@@ -54,23 +41,27 @@ void CreateWheel(
     for (int i = 0; i < radialSegments; i++)
     {
         float angle = i * angleStep;
-        glm::vec2 dir = glm::vec2(std::cos(angle), std::sin(angle));
-        glm::vec2 diskPos = center + dir * innerRadius;
-        glm::vec2 tirePos = center + dir * outerRadius;
+        glm::vec2 diskDir = glm::vec2(std::cos(angle), std::sin(angle));
+        glm::vec2 diskPos = center + diskDir * innerRadius;
+
+        float tireAngle = angle - halfAngleStep;
+        glm::vec2 tireDir = glm::vec2(std::cos(tireAngle), std::sin(tireAngle));
+        glm::vec2 tirePos = center + tireDir * outerRadius;
 
         innerIds.push_back(wheel.AddPoint(diskPos, diskPointMass));
         outerIds.push_back(wheel.AddPoint(tirePos, tirePointMass));
     }
 
-    std::reverse(innerIds.begin(),innerIds.end());
     for (int i = 0; i < radialSegments; i++)
     {
-        wheel.AddDistanceConstraint(0, innerIds[i], .01f);
-        wheel.AddDistanceConstraint(innerIds[i], outerIds[radialSegments - 1 - i]);
-        wheel.AddDistanceConstraint(innerIds[i], innerIds[(i + 1) % radialSegments], tireBodyCompliance);
-        wheel.AddDistanceConstraint(outerIds[i], outerIds[(i + 1) % radialSegments], tireTreadCompliance);
+        wheel.AddDistanceConstraint(0, innerIds[i], diskHubCompliance);                                       // center to disk
+        wheel.AddDistanceConstraint(innerIds[i], innerIds[(i + 1) % radialSegments], diskRimCompliance);      // disk to disk
+        wheel.AddDistanceConstraint(innerIds[i], outerIds[i], tireBodyCompliance);                         // disk to tire
+        wheel.AddDistanceConstraint(innerIds[i], outerIds[(i + 1) % radialSegments], tireBodyCompliance);  // disk to tire, shifted
+        wheel.AddDistanceConstraint(outerIds[i], outerIds[(i + 1) % radialSegments], tireTreadCompliance); // tire to tire
     }
 
-    wheel.AddVolumeConstraint(outerIds, tireTreadCompliance);
+    wheel.AddVolumeConstraint(innerIds);
+    wheel.AddVolumeConstraint(outerIds, tirePressureCompliance);
     wheel.volumeConstraints.back().restVolume *= tirePressure;
 }

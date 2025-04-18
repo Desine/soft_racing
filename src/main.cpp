@@ -11,7 +11,7 @@
 
 void ResetPoligon(SoftBody &softBody)
 {
-    softBody = *new SoftBody();
+    softBody.Clear();
 
     softBody.AddPoint(glm::vec2(300, 300), 3.f, glm::vec2(30, 0));
     softBody.AddPoint(glm::vec2(400, 300));
@@ -26,17 +26,6 @@ void ResetPoligon(SoftBody &softBody)
     softBody.AddVolumeConstraint({0, 1, 2, 3}, 0.2f);
 
     softBody.collisionPointMasses = {0, 1, 2};
-
-    CreateWheel(softBody, 
-        glm::vec2(300, 300),
-        200,
-        10,
-        3,
-        .3f,
-        .2f,
-        .1f,
-        1.f,
-        10);
 }
 
 int main()
@@ -46,23 +35,34 @@ int main()
     float fov = 2000.0f;
     float precision = 10.0f;
 
+    const glm::vec2 &center = glm::vec2(300, 300);
+    float wheelRadius = 200;
+    float diskMass = 20;
+    float tireMass = 5;
+    float tireRatio = .4f;
+    float diskHubCompliance = .0001f;
+    float diskRimCompliance = .0001f;
+    float tireBodyCompliance = .01f;
+    float tireTreadCompliance = .001f;
+    float tirePressureCompliance = .0f;
+    float tirePressure = 1.f;
+    int radialSegments = 12;
+    glm::vec2 gravity = glm::vec2(0.0f, 0.0f);
+
     Renderer renderer;
 
     SoftBody softBody;
     ResetPoligon(softBody);
     std::cout << softBody.volumeConstraints.back().restVolume << std::endl;
 
-    sf::RenderWindow window(sf::VideoMode({1400, 1400}), "Soft Racing");
+    sf::RenderWindow window(sf::VideoMode({2000, 2000}), "Soft Racing");
     window.setFramerateLimit(600);
     bool success = ImGui::SFML::Init(window);
     if (success)
     {
-        ImGui::GetStyle().ScaleAllSizes(4.f);
-        ImGui::GetIO().FontGlobalScale = 2.5f;
+        ImGui::GetStyle().ScaleAllSizes(3.f);
+        ImGui::GetIO().FontGlobalScale = 2.f;
     }
-
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
 
     sf::Clock deltaClock;
     while (window.isOpen())
@@ -80,27 +80,54 @@ int main()
         ImGui::SFML::Update(window, dt);
 
         ImGui::Begin("ImGui Begin Title");
-        ImGui::Text("some text..");
+        // ImGui::Text("some text..");
 
-        ImGui::SliderFloat("Distance Compliance", &softBody.distanceConstraints[0].compliance, 0.f, 1.f);
-        ImGui::SliderFloat("Distance Rest Length", &softBody.distanceConstraints[0].restDistance, 0.1f, 1000.0f);
-        ImGui::SliderFloat("Volume Compliance", &softBody.volumeConstraints[0].compliance, 0.f, 1.f);
-        ImGui::SliderFloat("Rest Volume", &softBody.volumeConstraints[0].restVolume, .1f, 500000.f);
+        if (ImGui::Button("EXIT"))
+            window.close();
+
+        if (ImGui::Button("Reset"))
+        {
+            CreateWheel(softBody,
+                        center,
+                        wheelRadius,
+                        diskMass,
+                        tireMass,
+                        tireRatio,
+                        diskHubCompliance,
+                        diskRimCompliance,
+                        tireBodyCompliance,
+                        tireTreadCompliance,
+                        tirePressureCompliance,
+                        tirePressure,
+                        radialSegments);
+            // ResetPoligon(softBody);
+        }
+
+        ImGui::SliderFloat("Gravity", &gravity.y, -1000.f, 1000.f);
         ImGui::SliderInt("Substeps", &softBody.simulationSubsteps, 1, 10);
 
-        if (ImGui::Button("Reset Triangle"))
-            ResetPoligon(softBody);
+        ImGui::SliderFloat("Wheel Radius", &wheelRadius, 50.f, 500.f);
+        ImGui::SliderFloat("Disk Mass", &diskMass, 1.f, 100.f);
+        ImGui::SliderFloat("Tire Mass", &tireMass, 1.f, 100.f);
+        ImGui::SliderFloat("Tire Ratio", &tireRatio, 0.1f, 0.9f);
+
+        ImGui::SliderFloat("Disk Hub Compliance", &diskHubCompliance, 0.0001f, 1.f);
+        ImGui::SliderFloat("Disk Compliance", &diskRimCompliance, 0.0001f, 1.f);
+        ImGui::SliderFloat("Tire Body Compliance", &tireBodyCompliance, 0.0001f, 1.f);
+        ImGui::SliderFloat("Tire Tread Compliance", &tireTreadCompliance, 0.0001f, 1.f);
+        ImGui::SliderFloat("Tire Pressure Compliance", &tirePressureCompliance, 0.0001f, 1.f);
+        ImGui::SliderFloat("Tire Pressure", &tirePressure, 0.f, 10.f);
+
+        ImGui::SliderInt("Radial Segments", &radialSegments, 3, 32);
 
         ImGui::End();
 
         window.clear();
 
         renderer.DrawLevel(window, level, carPositionX, fov, precision);
-        softBody.Simulate(dt.asSeconds(), glm::vec2(0.0f, -0.0f));
-        // softBody.ResolveGroundCollision(level);
+        softBody.Simulate(dt.asSeconds(), gravity);
+        softBody.SolveGroundCollision(level);
         renderer.DrawSoftBody(window, softBody);
-
-        window.draw(shape);
 
         ImGui::SFML::Render(window);
         window.display();
