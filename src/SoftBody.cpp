@@ -149,15 +149,15 @@ void SoftBody::SolveGroundCollision(const Level &level)
         if (p.position.y < heightAtPoint)
         {
             p.position.y = heightAtPoint;
+            p.velocity.y = -p.velocity.y * .1f;
+        }
+        if (p.position.x < -100){
+            p.position.x = -100;
+            p.velocity.x = -p.velocity.x;
+        }
+        if (p.position.y > 2000){
+            p.position.y = 2000;
             p.velocity.y = -p.velocity.y;
-        }
-        if (p.position.x < 0){
-            p.position.x = 0;
-            p.velocity.x = -p.velocity.x;
-        }
-        if (p.position.x > 2000){
-            p.position.x = 2000;
-            p.velocity.x = -p.velocity.x;
         }
     }
 }
