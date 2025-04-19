@@ -107,7 +107,7 @@ void SoftBody::SolveVolumeConstraints(float deltaTime)
     std::vector<VolumeConstraint> randomized = volumeConstraints;
     std::shuffle(randomized.begin(), randomized.end(), g);
 
-    for (auto &v : volumeConstraints)
+    for (auto &v : randomized)
     {
         int pointsCount = v.ids.size();
 
@@ -149,15 +149,16 @@ void SoftBody::SolveGroundCollision(const Level &level)
         if (p.position.y < heightAtPoint)
         {
             p.position.y = heightAtPoint;
-            p.velocity.y = -p.velocity.y * .1f;
-        }
-        if (p.position.x < -100){
-            p.position.x = -100;
-            p.velocity.x = -p.velocity.x;
+            p.velocity.y = -p.velocity.y * .001f;
+            p.velocity.x = 0;
         }
         if (p.position.y > 2000){
             p.position.y = 2000;
             p.velocity.y = -p.velocity.y;
+        }
+        if (p.position.x < -100){
+            p.position.x = -100;
+            p.velocity.x = -p.velocity.x;
         }
     }
 }

@@ -31,7 +31,7 @@ class SoftBody {
     std::vector<DistanceConstraint> distanceConstraints;
     std::vector<int> collisionPointMasses;
     std::vector<VolumeConstraint> volumeConstraints;
-    int simulationSubsteps = 2;
+    int simulationSubsteps = 1;
     
     int AddPoint(const glm::vec2& position, float mass = 1.f, const glm::vec2& velocity = glm::vec2(0,0), bool fixed = false);
     void AddDistanceConstraint(int a, int b, float compliance = 0.0f);
