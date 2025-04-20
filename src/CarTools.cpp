@@ -34,7 +34,7 @@ void CreateWheel(
     float angleStep = 2 * M_PI / radialSegments;
     float halfAngleStep = angleStep * 0.5f;
 
-    wheel.AddPoint(center, diskPointMass);
+    // wheel.AddPoint(center, diskPointMass);
 
     std::vector<int> innerIds;
     std::vector<int> outerIds;
@@ -48,20 +48,20 @@ void CreateWheel(
         glm::vec2 tireDir = glm::vec2(std::cos(tireAngle), std::sin(tireAngle));
         glm::vec2 tirePos = center + tireDir * outerRadius;
 
-        innerIds.push_back(wheel.AddPoint(diskPos, diskPointMass));
-        outerIds.push_back(wheel.AddPoint(tirePos, tirePointMass));
+        // innerIds.push_back(wheel.AddPoint(diskPos, diskPointMass));
+        // outerIds.push_back(wheel.AddPoint(tirePos, tirePointMass));
     }
 
     for (int i = 0; i < radialSegments; i++)
     {
-        wheel.AddDistanceConstraint(0, innerIds[i], diskHubCompliance);                                       // center to disk
-        wheel.AddDistanceConstraint(innerIds[i], innerIds[(i + 1) % radialSegments], diskRimCompliance);      // disk to disk
-        wheel.AddDistanceConstraint(innerIds[i], outerIds[i], tireBodyCompliance);                         // disk to tire
-        wheel.AddDistanceConstraint(innerIds[i], outerIds[(i + 1) % radialSegments], tireBodyCompliance);  // disk to tire, shifted
-        wheel.AddDistanceConstraint(outerIds[i], outerIds[(i + 1) % radialSegments], tireTreadCompliance); // tire to tire
+        // wheel.AddDistanceConstraint(0, innerIds[i], diskHubCompliance);                                       // center to disk
+        // wheel.AddDistanceConstraint(innerIds[i], innerIds[(i + 1) % radialSegments], diskRimCompliance);      // disk to disk
+        // wheel.AddDistanceConstraint(innerIds[i], outerIds[i], tireBodyCompliance);                         // disk to tire
+        // wheel.AddDistanceConstraint(innerIds[i], outerIds[(i + 1) % radialSegments], tireBodyCompliance);  // disk to tire, shifted
+        // wheel.AddDistanceConstraint(outerIds[i], outerIds[(i + 1) % radialSegments], tireTreadCompliance); // tire to tire
     }
 
-    wheel.AddVolumeConstraint(innerIds);
-    wheel.AddVolumeConstraint(outerIds, tirePressureCompliance);
-    wheel.volumeConstraints.back().restVolume *= tirePressure;
+    // wheel.AddVolumeConstraint(innerIds);
+    // wheel.AddVolumeConstraint(outerIds, tirePressureCompliance);
+    // wheel.volumeConstraints.back().restVolume *= tirePressure;
 }

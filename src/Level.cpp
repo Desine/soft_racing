@@ -31,7 +31,7 @@ float Level::GetHeight(float positionX) const
 {
     float groundOfset = 500.0f;
 
-    std::mt19937 rng(sid); // генератор случайных чисел по сиду
+    std::mt19937 rng(sid);
     std::uniform_real_distribution<float> noiseOffsetDist(0.0f, 1000.0f);
 
     std::vector<float> offsets;
@@ -62,4 +62,21 @@ glm::vec2 Level::GetNormal(float positionX) const
     glm::vec2 normal(-tangent.y, tangent.x);
     
     return glm::normalize(normal);
+}
+
+glm::vec2 Level::ProjectPointToSurface(const glm::vec2& point) const
+{
+    float surfaceY = GetHeight(point.x);
+    
+    glm::vec2 normal = GetNormal(point.x);
+    
+    glm::vec2 surfacePoint(point.x, surfaceY);
+    glm::vec2 toPoint = point - surfacePoint;
+    
+    float projectionLength = glm::dot(toPoint, normal);
+    glm::vec2 projection = projectionLength * normal;
+    
+    glm::vec2 projectedPoint = point - projection;
+    
+    return projectedPoint;
 }

@@ -39,6 +39,7 @@ void Renderer::DrawLevel(sf::RenderWindow &window, const Level &level, float car
 
 void Renderer::DrawSoftBody(sf::RenderWindow &window, const SoftBody &softBody)
 {
+    /*
     // Draw points
     for (const auto &p : softBody.pointMasses)
     {
@@ -58,34 +59,35 @@ void Renderer::DrawSoftBody(sf::RenderWindow &window, const SoftBody &softBody)
         sf::Vertex line[] = {
             sf::Vertex(sf::Vector2f(a.position.x, a.position.y), sf::Color::White),
             sf::Vertex(sf::Vector2f(b.position.x, b.position.y), sf::Color::White)};
-        window.draw(line, 2, sf::Lines);
-    }
+            window.draw(line, 2, sf::Lines);
+        }
 
-    // Draw ground points and normals
-    for (const auto &p : softBody.pointMasses)
-    {
-        Level level(1234);
+        // Draw ground points and normals
+        for (const auto &p : softBody.pointMasses)
+        {
+            Level level(1234);
 
-        // point
-        float groundY = level.GetHeight(p.position.x);
-        sf::CircleShape circle(3.0f);
-        circle.setOrigin(3.0f, 3.0f);
-        circle.setPosition(p.position.x, groundY);
-        circle.setFillColor(sf::Color::Red);
-        window.draw(circle);
+            // point
+            float groundY = level.GetHeight(p.position.x);
+            sf::CircleShape circle(3.0f);
+            circle.setOrigin(3.0f, 3.0f);
+            circle.setPosition(p.position.x, groundY);
+            circle.setFillColor(sf::Color::Red);
+            window.draw(circle);
 
-        // normal
-        glm::vec2 normal = level.GetNormal(p.position.x);
-        float lineLength = 30.0f;
+            // normal
+            glm::vec2 normal = level.GetNormal(p.position.x);
+            float lineLength = 30.0f;
 
-        sf::VertexArray normalLine(sf::Lines, 2);
-        normalLine[0].position = sf::Vector2f(p.position.x, groundY);
-        normalLine[0].color = sf::Color::Green;
-        normalLine[1].position = sf::Vector2f(
-            p.position.x + normal.x * lineLength,
-            groundY + normal.y * lineLength);
-        normalLine[1].color = sf::Color::Green;
+            sf::VertexArray normalLine(sf::Lines, 2);
+            normalLine[0].position = sf::Vector2f(p.position.x, groundY);
+            normalLine[0].color = sf::Color::Green;
+            normalLine[1].position = sf::Vector2f(
+                p.position.x + normal.x * lineLength,
+                groundY + normal.y * lineLength);
+                normalLine[1].color = sf::Color::Green;
 
-        window.draw(normalLine);
-    }
+                window.draw(normalLine);
+            }
+            */
 }

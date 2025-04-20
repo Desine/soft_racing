@@ -52,7 +52,7 @@ int main()
         tirePressureCompliance,
         tirePressure,
         radialSegments);
-    std::cout << "Rest Volume: " <<softBody.volumeConstraints.back().restVolume << std::endl;
+    // std::cout << "Rest Volume: " <<softBody.volumeConstraints.back().restVolume << std::endl;
 
     sf::RenderWindow window(sf::VideoMode({WINDOW_WIDTH, WINDOW_HEIGHT}), "Soft Racing");
     window.setFramerateLimit(140);
@@ -107,7 +107,7 @@ int main()
         }
 
         ImGui::SliderFloat("Simulation Speed", &simulationSpeed, 0.001f, 100.f);
-        ImGui::SliderInt("Substeps", &softBody.simulationSubsteps, 1, 10);
+        // ImGui::SliderInt("Substeps", &softBody.simulationSubsteps, 1, 10);
         ImGui::SliderFloat("Gravity Y", &gravity.y, -100.f, 100.f);
         ImGui::SliderFloat("Gravity X", &gravity.x, -100.f, 100.f);
 
@@ -128,15 +128,15 @@ int main()
         ImGui::End();
 
         sf::Vector2f cameraCenter;
-        cameraCenter.x = softBody.pointMasses[0].position.x;
-        cameraCenter.y = softBody.pointMasses[0].position.y;
+        // cameraCenter.x = softBody.pointMasses[0].position.x;
+        // cameraCenter.y = softBody.pointMasses[0].position.y;
         view.setCenter(cameraCenter);
 
         window.clear();
         window.setView(view);
-        carPositionX = softBody.pointMasses[0].position.x;
+        // carPositionX = softBody.pointMasses[0].position.x;
         renderer.DrawLevel(window, level, carPositionX, fov, precision);
-        softBody.Simulate(dt.asSeconds() * simulationSpeed, gravity);
+        // softBody.Simulate(dt.asSeconds() * simulationSpeed, gravity);
         softBody.SolveGroundCollision(level);
         renderer.DrawSoftBody(window, softBody);
 
