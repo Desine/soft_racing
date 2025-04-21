@@ -1,71 +1,52 @@
+// file SoftBody.hpp
 #pragma once
-#include "Level.hpp"
 #include <vector>
-#include <SFML/Graphics.hpp>
 #include "glm/glm.hpp"
 
-class PointMass
+struct PointMasses
 {
-public:
-    std::vector<glm::vec2> position, prevPosition, velocity, force;
-    std::vector<float> mass, inverseMass;
-
-    int count = 0;
-
-    int Add(const glm::vec2 &position, float mass, const glm::vec2 &velocity = glm::vec2(0, 0));
-    void ApplyForce(int index, const glm::vec2 &force);
-    void Integrate(float deltaTime);
-    void UpdateVelocity(float deltaTime);
+    std::vector<glm::vec2> positions;
+    std::vector<glm::vec2> prevPositions;
+    std::vector<glm::vec2> velocities;
+    std::vector<float> inverseMasses;
+};
+struct DistanceConstraint
+{
+    uint32_t i1, i2;
+    float restDistance;
+    float compliance;
+    float lambda;
+};
+struct VolumeConstraint
+{
+    std::vector<uint32_t> indices;
+    float restVolume;
+    float compliance;
+    float lambda;
+};
+struct PinConstraint
+{
+    uint32_t index;
+    glm::vec2 targetPosition;
+    float compliance;
+    float lambda = 0.0f;
+};
+struct CollisionConstraint
+{
+    uint32_t pointIndex;
+    glm::vec2 normal;
+    glm::vec2 contactPoint;
+    float compliance;
+    float lambda;
 };
 
-class Constraint
+struct SoftBody
 {
-public:
-    std::vector<float> compliance, lambda;
-    int count = 0;
-
-    virtual void Project(PointMass &pointMasses, float deltaTime, bool firstIteration);
+    PointMasses pointMasses;
+    std::vector<DistanceConstraint> distanceConstraints;
+    std::vector<VolumeConstraint> volumeConstraints;
+    std::vector<PinConstraint> pinConstraints;
+    std::vector<CollisionConstraint> collisionConstraints;
 };
 
-class DistanceConstraint : public Constraint
-{
-public:
-    std::vector<int> i1, i2;
-    std::vector<float> restDistance;
-
-    int Add(int index1, int index2, float restLength, float compliance);
-    void Project(PointMass &pointMasses, float deltaTime, bool firstIteration) override;
-};
-
-class VolumeConstraint : public Constraint
-{
-public:
-    std::vector<std::vector<int>> indices;
-    std::vector<float> restVolume;
-
-    int Add(std::vector<int> indices, float restVolume, float compliance);
-    void Project(PointMass &pointMasses, float deltaTime, bool firstIteration) override;
-};
-
-class BendingConstraint : public Constraint
-{
-public:
-    std::vector<int> i1, i2, i3;
-    std::vector<float> restAngle;
-
-    int Add(int index1, int index2, int index3, float restAngle, float compliance);
-    void Project(PointMass &pointMasses, float deltaTime, bool firstIteration) override;
-};
-
-class SoftBody
-{
-public:
-    PointMass pointMasses;
-    DistanceConstraint distanceConstraints;
-    VolumeConstraint volumeConstraints;
-    BendingConstraint bendingConstraints;
-
-    void Simulate(float deltaTime, glm::vec2 gravity = glm::vec2(0.0f, -9.8f), const Level &level = NULL);
-    void SolveGroundCollision(const Level &level);
-    void Clear();
-};
+float ComputePolygonArea(const std::vector<glm::vec2> &positions, const std::vector<uint32_t> &indices);

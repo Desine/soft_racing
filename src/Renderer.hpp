@@ -6,8 +6,10 @@
 class Renderer
 {
 public:
-    Renderer();
+    sf::RenderWindow *window;
 
-    void DrawLevel(sf::RenderWindow &window, const Level &level, float carPositionX, float fov, float precision);
-    void DrawSoftBody(sf::RenderWindow& window, const SoftBody& softBody);
+    void SetWindow(sf::RenderWindow *window);
+    void DrawLevel(const Level &level, float carPositionX, float fov, float precision);
+    void DrawSoftBody(const SoftBody &softBody);
+    // void DrawDistanceConstraints(PointMass pointMasses, DistanceConstraint distanceConstraints);
 };

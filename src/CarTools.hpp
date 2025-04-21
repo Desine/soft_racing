@@ -1,9 +1,7 @@
-
 #pragma once
 #include "SoftBody.hpp"
 
-void CreateWheel(
-    SoftBody &wheel,
+SoftBody CreateWheel(
     const glm::vec2 &center,
     float wheelRadius,
     float diskMass,

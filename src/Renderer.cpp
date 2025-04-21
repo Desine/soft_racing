@@ -1,12 +1,12 @@
 #include "Renderer.hpp"
 #include <iostream>
 
-Renderer::Renderer()
+void Renderer::SetWindow(sf::RenderWindow *window)
 {
-    // возможно, инициализация шрифтов, текстур и т.п.
+    this->window = window;
 }
 
-void Renderer::DrawLevel(sf::RenderWindow &window, const Level &level, float carPositionX, float fov, float precision)
+void Renderer::DrawLevel(const Level &level, float carPositionX, float fov, float precision)
 {
     std::vector<glm::vec2> points = level.GetPoints(carPositionX, fov, precision);
 
@@ -34,10 +34,10 @@ void Renderer::DrawLevel(sf::RenderWindow &window, const Level &level, float car
         terrain[i * 2 + 1].color = sf::Color(80, 120, 80);
     }
 
-    window.draw(terrain);
+    window->draw(terrain);
 }
 
-void Renderer::DrawSoftBody(sf::RenderWindow &window, const SoftBody &softBody)
+void Renderer::DrawSoftBody(const SoftBody &softBody)
 {
     /*
     // Draw points
@@ -91,3 +91,17 @@ void Renderer::DrawSoftBody(sf::RenderWindow &window, const SoftBody &softBody)
             }
             */
 }
+
+// void Renderer::DrawDistanceConstraints(PointMass pointMasses, DistanceConstraint distanceConstraints)
+// {
+//     for (int i = 0; i < distanceConstraints.count; ++i)
+//     {
+//         glm::vec2 &positionA = pointMasses.position[distanceConstraints.i1[i]];
+//         glm::vec2 &positionB = pointMasses.position[distanceConstraints.i2[i]];
+
+//         sf::Vertex line[] = {
+//             sf::Vertex(sf::Vector2f(positionA.x, positionA.y), sf::Color::White),
+//             sf::Vertex(sf::Vector2f(positionB.x, positionB.y), sf::Color::White)};
+//         window->draw(line, 2, sf::Lines);
+//     }
+// }
