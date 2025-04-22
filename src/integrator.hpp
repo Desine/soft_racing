@@ -1,5 +1,5 @@
 //file Integrator.hpp
-#include "SoftBody.hpp"
+#include "soft_body.hpp"
 
 
 void Integrate(PointMasses &pm, float dt, const glm::vec2 &gravity);

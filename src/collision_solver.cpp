@@ -1,4 +1,4 @@
-#include "CollisionSolver.hpp"
+#include "collision_solver.hpp"
 #include <algorithm>
 
 void GenerateCollisionConstraints(SoftBody& softBody, float groundY)

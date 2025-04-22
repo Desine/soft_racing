@@ -1,9 +1,9 @@
 // file Simulation.cpp
-#include "Simulation.hpp"
-#include "SoftBody.hpp"
-#include "ConstraintsSolver.hpp"
-#include "Integrator.hpp"
-#include "CollisionSolver.hpp"
+#include "simulation.hpp"
+#include "soft_body.hpp"
+#include "constraints_solver.hpp"
+#include "integrator.hpp"
+#include "collision_solver.hpp"
 
 void Simulate(SoftBody &softBody, float dt, int substeps, int iterations, const glm::vec2 &gravity)
 {

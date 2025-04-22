@@ -1,7 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "Level.hpp"
-#include "SoftBody.hpp"
+#include "level.hpp"
+#include "soft_body.hpp"
 
 class Renderer
 {
@@ -11,5 +11,5 @@ public:
     void SetWindow(sf::RenderWindow *window);
     void DrawLevel(const Level &level, float carPositionX, float fov, float precision);
     void DrawSoftBody(const SoftBody &softBody);
-    // void DrawDistanceConstraints(PointMass pointMasses, DistanceConstraint distanceConstraints);
+    void DrawDistanceConstraints(PointMasses &pointMasses, std::vector<DistanceConstraint> &distanceConstraints);
 };

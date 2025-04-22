@@ -1,5 +1,6 @@
-#include "Renderer.hpp"
+#include "renderer.hpp"
 #include <iostream>
+#include "glm/glm.hpp"
 
 void Renderer::SetWindow(sf::RenderWindow *window)
 {
@@ -92,16 +93,16 @@ void Renderer::DrawSoftBody(const SoftBody &softBody)
             */
 }
 
-// void Renderer::DrawDistanceConstraints(PointMass pointMasses, DistanceConstraint distanceConstraints)
-// {
-//     for (int i = 0; i < distanceConstraints.count; ++i)
-//     {
-//         glm::vec2 &positionA = pointMasses.position[distanceConstraints.i1[i]];
-//         glm::vec2 &positionB = pointMasses.position[distanceConstraints.i2[i]];
+void Renderer::DrawDistanceConstraints(PointMasses &pointMasses, std::vector<DistanceConstraint> &distanceConstraints)
+{
+    for (const DistanceConstraint &c : distanceConstraints)
+    {
+        glm::vec2 &positionA = pointMasses.positions[c.i1];
+        glm::vec2 &positionB = pointMasses.positions[c.i2];
 
-//         sf::Vertex line[] = {
-//             sf::Vertex(sf::Vector2f(positionA.x, positionA.y), sf::Color::White),
-//             sf::Vertex(sf::Vector2f(positionB.x, positionB.y), sf::Color::White)};
-//         window->draw(line, 2, sf::Lines);
-//     }
-// }
+        sf::Vertex line[] = {
+            sf::Vertex(sf::Vector2f(positionA.x, positionA.y), sf::Color::White),
+            sf::Vertex(sf::Vector2f(positionB.x, positionB.y), sf::Color::White)};
+        window->draw(line, 2, sf::Lines);
+    }
+}

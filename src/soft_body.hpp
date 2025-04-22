@@ -50,3 +50,4 @@ struct SoftBody
 };
 
 float ComputePolygonArea(const std::vector<glm::vec2> &positions, const std::vector<uint32_t> &indices);
+glm::vec2 GetGeometryCenter(PointMasses &pointMasses);
