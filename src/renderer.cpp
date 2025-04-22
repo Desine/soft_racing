@@ -106,3 +106,20 @@ void Renderer::DrawDistanceConstraints(PointMasses &pointMasses, std::vector<Dis
         window->draw(line, 2, sf::Lines);
     }
 }
+
+void Renderer::DrawSoftBodies(std::vector<SoftBody> &softBodies)
+{
+    for (SoftBody &s : softBodies)
+    {
+        for (const DistanceConstraint &c : s.distanceConstraints)
+        {
+            glm::vec2 &positionA = s.pointMasses.positions[c.i1];
+            glm::vec2 &positionB = s.pointMasses.positions[c.i2];
+
+            sf::Vertex line[] = {
+                sf::Vertex(sf::Vector2f(positionA.x, positionA.y), sf::Color::White),
+                sf::Vertex(sf::Vector2f(positionB.x, positionB.y), sf::Color::White)};
+            window->draw(line, 2, sf::Lines);
+        }
+    }
+}

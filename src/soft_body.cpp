@@ -1,4 +1,4 @@
-// file SoftBody.cpp
+// file soft_body.cpp
 #include "soft_body.hpp"
 
 float ComputePolygonArea(const std::vector<glm::vec2> &positions, const std::vector<uint32_t> &indices)

@@ -1,4 +1,4 @@
-// file SoftBody.hpp
+// file soft_body.hpp
 #pragma once
 #include <vector>
 #include "glm/glm.hpp"
@@ -34,10 +34,11 @@ struct PinConstraint
 struct CollisionConstraint
 {
     uint32_t pointIndex;
+    uint32_t lineIndexA, lineIndexB; // сегмент B (i1, i2)
     glm::vec2 normal;
-    glm::vec2 contactPoint;
+    float penetrationDepth;
     float compliance;
-    float lambda;
+    float lambda = 0.0f;
 };
 
 struct SoftBody
@@ -46,6 +47,8 @@ struct SoftBody
     std::vector<DistanceConstraint> distanceConstraints;
     std::vector<VolumeConstraint> volumeConstraints;
     std::vector<PinConstraint> pinConstraints;
+    std::vector<uint32_t> collisionPoints;
+    std::vector<uint32_t> collisionLines;
     std::vector<CollisionConstraint> collisionConstraints;
 };
 

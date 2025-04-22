@@ -1,19 +1,19 @@
 #pragma once
 #include "soft_body.hpp"
 
-SoftBody CreateWheel(
-    const glm::vec2 &center,
-    float wheelRadius,
-    float diskMass,
-    float tireMass,
-    float tireRatio,
-    float diskHubCompliance,
-    float diskRimCompliance,
-    float tireBodyCompliance,
-    float tireTreadCompliance,
-    float tirePressureCompliance,
-    float tirePressure,
-    int radialSegments);
+// SoftBody CreateWheel(
+//     const glm::vec2 &center,
+//     float wheelRadius,
+//     float diskMass,
+//     float tireMass,
+//     float tireRatio,
+//     float diskHubCompliance,
+//     float diskRimCompliance,
+//     float tireBodyCompliance,
+//     float tireTreadCompliance,
+//     float tirePressureCompliance,
+//     float tirePressure,
+//     int radialSegments);
 
 // glm::vec2 center = glm::vec2(500, 1000);
 // float wheelRadius = 200;

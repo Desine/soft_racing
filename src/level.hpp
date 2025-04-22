@@ -19,3 +19,10 @@ public:
         unsigned int sid;
         std::vector<std::pair<float, float>> noiseComponents; // (frequency, amplitude)
 };
+
+
+
+// Level level(1234);
+// float carPositionX = 0.0f;
+// float fov = 2000.0f;
+// float precision = 10.0f;

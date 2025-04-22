@@ -1,5 +1,4 @@
 #pragma once
-
 #include <algorithm>
 
 class TickSystem
@@ -21,16 +20,18 @@ public:
         return mAccumulator >= mFixedDt;
     }
 
-    void Step()
+    bool Step()
     {
-        if (ShouldStep())
+        if (ShouldStep() || mStepOnce)
         {
             mAccumulator -= mFixedDt;
             if (mAccumulator > 0)
                 mAccumulator = 0;
-        }
 
-        mStepOnce = false;
+            mStepOnce = false;
+            return true;
+        }
+        return false;
     }
 
     float GetFixedDt() const { return mFixedDt * mTimeScale; }

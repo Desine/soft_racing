@@ -3,4 +3,4 @@
 
 #include "soft_body.hpp"
 
-void Simulate(SoftBody& softBody, float dt, int substeps, int iterations, const glm::vec2 &gravity);
+void Simulate(std::vector<SoftBody> &softBodies, float dt, int substeps, int iterations, const glm::vec2 &gravity);
