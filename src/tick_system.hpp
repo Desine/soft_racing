@@ -15,17 +15,15 @@ public:
 
     bool ShouldStep() const
     {
-        if (mStepOnce)
-            return true;
-        return mAccumulator >= mFixedDt;
+        return mAccumulator >= mFixedDt || mStepOnce;
     }
 
     bool Step()
     {
-        if (ShouldStep() || mStepOnce)
+        if (ShouldStep())
         {
             mAccumulator -= mFixedDt;
-            if (mAccumulator > 0)
+            if (mAccumulator < 0)
                 mAccumulator = 0;
 
             mStepOnce = false;

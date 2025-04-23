@@ -6,6 +6,33 @@
 
 #include <iostream>
 
+DistanceConstraint CreateDistanceConstraint(const std::vector<glm::vec2> &positions, uint32_t i1, uint32_t i2, float compliance)
+{
+    DistanceConstraint constraint;
+    constraint.i1 = i1;
+    constraint.i2 = i2;
+    constraint.restDistance = glm::distance(positions[i1], positions[i2]);
+    constraint.compliance = compliance;
+    return constraint;
+}
+DistanceConstraint CreateDistanceConstraint(const std::vector<glm::vec2> &positions, uint32_t i1, uint32_t i2, float compliance, float restDistance)
+{
+    DistanceConstraint constraint = CreateDistanceConstraint(positions, i1, i2, compliance);
+    constraint.restDistance = restDistance;
+    return constraint;
+}
+void ResetConstrainsLambdas(SoftBody &softBody)
+{
+    for (auto &c : softBody.distanceConstraints)
+        c.lambda = 0.0f;
+
+    for (auto &c : softBody.volumeConstraints)
+        c.lambda = 0.0f;
+
+    for (auto &c : softBody.pinConstraints)
+        c.lambda = 0.0f;
+}
+
 float ComputePolygonArea(const std::vector<glm::vec2> &positions, const std::vector<uint32_t> &indices)
 {
     float area = 0.0f;
@@ -19,13 +46,13 @@ float ComputePolygonArea(const std::vector<glm::vec2> &positions, const std::vec
     return 0.5f * area;
 }
 
-glm::vec2 GetGeometryCenter(PointMasses &pointMasses)
+glm::vec2 ComputeGeometryCenter(const std::vector<glm::vec2> &positions)
 {
     glm::vec2 center = glm::vec2(0, 0);
-    for (auto &p : pointMasses.positions)
+    for (auto &p : positions)
         center += p;
 
-    return center /= pointMasses.positions.size();
+    return center /= positions.size();
 }
 
 std::vector<RayHit> RaycastAllIntersections(const glm::vec2 &origin, const glm::vec2 &direction, const SoftBody &body)

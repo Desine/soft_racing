@@ -16,6 +16,7 @@ public:
     static void DrawSoftBody(const SoftBody &softBody);
     static void DrawDistanceConstraints(PointMasses &pointMasses, std::vector<DistanceConstraint> &distanceConstraints);
     static void DrawSoftBodies(std::vector<SoftBody> &softBodies);
+    static void DrawSoftBody(SoftBody &softBoby);    
 
     static void DrawCircle(const glm::vec2 &pos, float radius, const sf::Color &color);
     static void DrawLine(const glm::vec2 &from, const glm::vec2 &to, const sf::Color &color);

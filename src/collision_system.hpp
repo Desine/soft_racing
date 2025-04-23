@@ -11,7 +11,7 @@ struct SoftSoftCollisionConstraint
     glm::vec2 normal;
     float distance;
     float compliance;
-    float lambda;
+    float lambda = 0.0f;
 };
 
 void DetectSoftSoftCollisions(
@@ -20,3 +20,4 @@ void DetectSoftSoftCollisions(
     float compliance,
     float minDistanceThreshold,
     std::vector<SoftSoftCollisionConstraint> &outConstraints);
+void SolveSoftSoftCollisionConstraint(SoftSoftCollisionConstraint &constraint, float dt);

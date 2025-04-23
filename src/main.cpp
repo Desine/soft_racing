@@ -4,13 +4,14 @@
 
 #include <iostream>
 #include <vector>
+#include <random>
 
 #include "tick_system.hpp"
 #include "collision_system.hpp"
 #include "simulation.hpp"
 #include "soft_body.hpp"
 #include "renderer.hpp"
-#include "car_tools.hpp"
+#include "shape_tools.hpp"
 #include "level.hpp"
 #include "tick_system_imgui.hpp"
 #include "bodies_manager.hpp"
@@ -18,42 +19,57 @@
 const int WINDOW_WIDTH = 2000;
 const int WINDOW_HEIGHT = 2000;
 
-SoftBody CreateSoftSquare()
+SoftBody CreateSoftPolygon(int segments)
+{
+    if (segments < 3)
+        segments = 3;
+
+    SoftBody softBody;
+
+    glm::vec2 origin(0.0f, 300.0f);
+    float radius = 50.0f;
+
+    softBody.pointMasses.positions = CreatePoigonPositions(segments, radius, origin);
+    softBody.pointMasses.prevPositions = softBody.pointMasses.positions;
+    softBody.pointMasses.velocities.resize(segments, glm::vec2(0.0f));
+    softBody.pointMasses.inverseMasses.resize(segments, 1.0f);
+    softBody.pointMasses.velocities[0].x = 3.f; // one point
+
+    AddDistanceConstraintsToLoop(softBody, 1e-5f);
+    AddVolumeConstraintToLoop(softBody, 1e-5f);
+
+    AddCollisionPointsToLoop(softBody);
+    AddCollisionShapeToLoop(softBody);
+
+    return softBody;
+}
+
+SoftBody CreateGround()
 {
     SoftBody body;
 
-    float spacing = 100.0f;
-    glm::vec2 origin(1000.0f, 1000.0f);
+    float spacing = 500.0f;
+    glm::vec2 origin(0.0f, -300.0f);
 
     body.pointMasses.positions = {
-        origin,
-        origin + glm::vec2(0, spacing),
-        origin + glm::vec2(spacing, spacing),
-        origin + glm::vec2(spacing, 0)};
+        origin + glm::vec2(-spacing, -spacing / 2),
+        origin + glm::vec2(-spacing, spacing / 4),
+
+        origin + glm::vec2(-spacing * .7f, spacing),
+        origin + glm::vec2(-spacing * .7f, spacing / 10),
+        origin + glm::vec2(spacing * .7f, spacing / 10),
+        origin + glm::vec2(spacing * .7f, spacing),
+
+        origin + glm::vec2(spacing, spacing / 4),
+        origin + glm::vec2(spacing, -spacing / 2)};
+    int pointCount = body.pointMasses.positions.size();
 
     body.pointMasses.prevPositions = body.pointMasses.positions;
-    body.pointMasses.velocities.resize(4, glm::vec2(0.0f));
-    body.pointMasses.inverseMasses = {1.0f, 1.0f, 1.0f, 1.0f};
-    body.pointMasses.velocities[0].x = -30.f; // one point
+    body.pointMasses.velocities.resize(pointCount, glm::vec2(0.0f));
+    body.pointMasses.inverseMasses.resize(pointCount, 0.0f);
 
-    auto &d = body.distanceConstraints;
-    d.push_back({0, 1, spacing, 1e-5f, 0});
-
-    d.push_back({1, 2, spacing, 1e-5f, 0});
-    d.push_back({2, 3, spacing, 1e-5f, 0});
-    d.push_back({3, 0, spacing, 1e-5f, 0});
-    // d.push_back({0, 2, spacing * std::sqrt(2.0f), 1e-5f, 0});
-    // d.push_back({1, 3, spacing * std::sqrt(2.0f), 1e-5f, 0});
-
-    VolumeConstraint vc;
-    vc.indices = {0, 1, 2, 3};
-    vc.restVolume = ComputePolygonArea(body.pointMasses.positions, vc.indices);
-    vc.compliance = 1e-5f;
-    vc.lambda = 0;
-    body.volumeConstraints.push_back(vc);
-
-    body.collisionPoints = {0, 1, 2, 3};
-    body.collisionShape = {0, 1, 2, 3};
+    body.collisionPoints = {0, 1, 2, 3, 4, 5, 6, 7};
+    body.collisionShape = {0, 1, 2, 3, 4, 5, 6, 7};
 
     return body;
 }
@@ -69,6 +85,10 @@ sf::View SetupView(sf::RenderWindow &window)
     sf::View view = window.getDefaultView();
     view.setSize(WINDOW_WIDTH, -WINDOW_HEIGHT);
     view.zoom(0.5f);
+    sf::Vector2f cameraCenter;
+    cameraCenter.x = 0;
+    cameraCenter.y = 0;
+    view.setCenter(cameraCenter);
     window.setView(view);
     return view;
 }
@@ -92,19 +112,22 @@ int main()
 
     bool cameraFollow = false;
 
-    glm::vec2 gravity = glm::vec2(0.0f, -0.8f);
+    glm::vec2 gravity = glm::vec2(0.0f, -9.8f);
     float simulationSpeed = 10.f;
     int solverSubsteps = 1;
     int solverIterations = 1;
 
-    float groundY = 900.0f;
+    std::random_device dev;
+    std::mt19937 rng(dev());
 
     BodiesManager bodiesManager;
-    bodiesManager.AddSoftBody(CreateSoftSquare());
+    bodiesManager.AddSoftBody(CreateSoftPolygon(4));
+    bodiesManager.AddSoftBody(CreateGround());
 
     TickSystem tickSystem(30.0f);
     tickSystem.SetTimeScale(10.f);
     tickSystem.SetIsPause(true);
+    tickSystem.StepOnce();
 
     Renderer::SetWindow(&window);
 
@@ -131,10 +154,14 @@ int main()
         if (ImGui::Button("Reset"))
         {
             bodiesManager.Clear();
-            bodiesManager.AddSoftBody(CreateSoftSquare());
+            bodiesManager.AddSoftBody(CreateSoftPolygon(rng() % 10));
+            bodiesManager.AddSoftBody(CreateGround());
         }
         if (ImGui::Button("Add body"))
-            bodiesManager.AddSoftBody(CreateSoftSquare());
+        {
+
+            bodiesManager.AddSoftBody(CreateSoftPolygon(rng() % 10));
+        }
         if (ImGui::Button(cameraFollow ? "Camera !follow" : "Camera follow"))
             cameraFollow = !cameraFollow;
         ImGui::SliderInt("Substeps", &solverSubsteps, 1, 10);
@@ -152,7 +179,7 @@ int main()
             window.clear();
             Simulate(bodiesManager.GetSoftBodies(), tickSystem.GetFixedDt(), solverSubsteps, solverIterations, gravity);
 
-            Renderer::DrawSoftBodies(bodiesManager.GetSoftBodies());
+            // Renderer::DrawSoftBodies(bodiesManager.GetSoftBodies());
 
             // std::cout << "Points: " << bodiesManager.GetSoftBody(0).collisionPoints[0] << std::endl;
             // std::cout << "Points: " << bodiesManager.GetSoftBody(0).collisionPoints[1] << std::endl;
@@ -168,17 +195,13 @@ int main()
         if (cameraFollow)
         {
             sf::Vector2f cameraCenter;
-            glm::vec2 geometryCenter = GetGeometryCenter(bodiesManager.GetSoftBody(0).pointMasses);
+            glm::vec2 geometryCenter = ComputeGeometryCenter(bodiesManager.GetSoftBody(0).pointMasses.positions);
             cameraCenter.x = geometryCenter.x;
             cameraCenter.y = geometryCenter.y;
             view.setCenter(cameraCenter);
             window.setView(view);
+            std::cout << "Camera center x: " << cameraCenter.x << " y: " << cameraCenter.y << std::endl;
         }
-
-        sf::RectangleShape ground(sf::Vector2f(800, 5));
-        ground.setPosition(0, groundY);
-        ground.setFillColor(sf::Color::Green);
-        window.draw(ground);
 
         ImGui::SFML::Render(window);
         window.display();

@@ -1,4 +1,4 @@
-#include "car_tools.hpp"
+#include "shape_tools.hpp"
 #include <cmath>
 #include <algorithm>
 
@@ -75,25 +75,46 @@
 //     wheel.volumeConstraints.restVolume[idx] *= tirePressure;
 // }
 
+std::vector<glm::vec2> CreatePoigonPositions(int segments, float radius, glm::vec2 origin)
+{
+    if (segments < 3)
+        segments = 3;
 
+    std::vector<glm::vec2> positions;
 
+    float angleStep = 2.0f * float(M_PI) / segments;
+    for (int i = 0; i < segments; ++i)
+    {
+        float angle = i * angleStep;
+        glm::vec2 dir = glm::vec2(cosf(angle), sinf(angle));
+        glm::vec2 pos = dir * radius + origin;
+        positions.push_back(pos);
+    }
+    return positions;
+}
+void AddDistanceConstraintsToLoop(SoftBody &softBody, float compliance)
+{
+    int pointCount = softBody.pointMasses.positions.size();
+    for (int i = 0; i < pointCount; ++i)
+        softBody.distanceConstraints.push_back(CreateDistanceConstraint(softBody.pointMasses.positions, i, (i + 1) % pointCount, compliance));
+}
+void AddVolumeConstraintToLoop(SoftBody &softBody, float compliance)
+{
+    VolumeConstraint vc;
+    for (int i = 0; i < softBody.pointMasses.positions.size(); ++i)
+        vc.indices.push_back(i);
 
-
-// void PhysicsScene::AddCloth(glm::vec2 origin, int w, int h, float spacing, float mass, float compliance) {
-//     int* indices = new int[w * h];
-
-//     for (int y = 0; y < h; ++y)
-//         for (int x = 0; x < w; ++x) {
-//             glm::vec2 pos = origin + glm::vec2(x * spacing, y * spacing);
-//             indices[y * w + x] = pointMasses.Add(pos, mass);
-//         }
-
-//     for (int y = 0; y < h; ++y)
-//         for (int x = 0; x < w; ++x) {
-//             int id = indices[y * w + x];
-//             if (x + 1 < w) distanceConstraints.Add(id, indices[y * w + (x + 1)], spacing, compliance);
-//             if (y + 1 < h) distanceConstraints.Add(id, indices[(y + 1) * w + x], spacing, compliance);
-//         }
-
-//     delete[] indices;
-// }
+    vc.restVolume = ComputePolygonArea(softBody.pointMasses.positions, vc.indices);
+    vc.compliance = compliance;
+    softBody.volumeConstraints.push_back(vc);
+}
+void AddCollisionPointsToLoop(SoftBody &softBody)
+{
+    for (int i = 0; i < softBody.pointMasses.positions.size(); ++i)
+        softBody.collisionPoints.push_back(i);
+}
+void AddCollisionShapeToLoop(SoftBody &softBody)
+{
+    for (int i = 0; i < softBody.pointMasses.positions.size(); ++i)
+        softBody.collisionShape.push_back(i);
+}
