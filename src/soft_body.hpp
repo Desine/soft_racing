@@ -2,6 +2,7 @@
 #pragma once
 #include <vector>
 #include "glm/glm.hpp"
+#include <optional>
 
 struct PointMasses
 {
@@ -29,16 +30,7 @@ struct PinConstraint
     uint32_t index;
     glm::vec2 targetPosition;
     float compliance;
-    float lambda = 0.0f;
-};
-struct CollisionConstraint
-{
-    uint32_t pointIndex;
-    uint32_t lineIndexA, lineIndexB; // сегмент B (i1, i2)
-    glm::vec2 normal;
-    float penetrationDepth;
-    float compliance;
-    float lambda = 0.0f;
+    float lambda;
 };
 
 struct SoftBody
@@ -48,9 +40,18 @@ struct SoftBody
     std::vector<VolumeConstraint> volumeConstraints;
     std::vector<PinConstraint> pinConstraints;
     std::vector<uint32_t> collisionPoints;
-    std::vector<uint32_t> collisionLines;
-    std::vector<CollisionConstraint> collisionConstraints;
+    std::vector<uint32_t> collisionShape;
+};
+
+struct RayHit
+{
+    glm::vec2 point;
+    float distance;
+    size_t edgeIndex;
 };
 
 float ComputePolygonArea(const std::vector<glm::vec2> &positions, const std::vector<uint32_t> &indices);
 glm::vec2 GetGeometryCenter(PointMasses &pointMasses);
+
+std::vector<RayHit> RaycastAllIntersections(const glm::vec2 &origin, const glm::vec2 &direction, const SoftBody &body);
+std::optional<RayHit> RaycastFirstIntersection(const glm::vec2 &origin, const glm::vec2 &direction, const SoftBody &body);

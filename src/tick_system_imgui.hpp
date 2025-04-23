@@ -1,5 +1,4 @@
 #pragma once
-
 #include "tick_system.hpp"
 #include "imgui.h"
 
@@ -16,7 +15,7 @@ inline void TickSystemImGui(TickSystem &tickSystem)
         tickSystem.StepOnce();
     ImGui::SameLine();
     if (ImGui::Button(tickSystem.IsPaused() ? "Play" : "Pause"))
-        tickSystem.SetPause(!tickSystem.IsPaused());
+        tickSystem.SetIsPause(!tickSystem.IsPaused());
 
     float timeScale = tickSystem.GetTimeScale();
     if (ImGui::SliderFloat("Time Scale", &timeScale, 0.1f, 100.0f, "%.2fx"))

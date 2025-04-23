@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 
 #include <iostream>
+#include <vector>
 
 #include "tick_system.hpp"
 #include "collision_system.hpp"
@@ -26,9 +27,9 @@ SoftBody CreateSoftSquare()
 
     body.pointMasses.positions = {
         origin,
-        origin + glm::vec2(spacing, 0),
+        origin + glm::vec2(0, spacing),
         origin + glm::vec2(spacing, spacing),
-        origin + glm::vec2(0, spacing)};
+        origin + glm::vec2(spacing, 0)};
 
     body.pointMasses.prevPositions = body.pointMasses.positions;
     body.pointMasses.velocities.resize(4, glm::vec2(0.0f));
@@ -41,8 +42,8 @@ SoftBody CreateSoftSquare()
     d.push_back({1, 2, spacing, 1e-5f, 0});
     d.push_back({2, 3, spacing, 1e-5f, 0});
     d.push_back({3, 0, spacing, 1e-5f, 0});
-    d.push_back({0, 2, spacing * std::sqrt(2.0f), 1e-5f, 0});
-    d.push_back({1, 3, spacing * std::sqrt(2.0f), 1e-5f, 0});
+    // d.push_back({0, 2, spacing * std::sqrt(2.0f), 1e-5f, 0});
+    // d.push_back({1, 3, spacing * std::sqrt(2.0f), 1e-5f, 0});
 
     VolumeConstraint vc;
     vc.indices = {0, 1, 2, 3};
@@ -50,6 +51,9 @@ SoftBody CreateSoftSquare()
     vc.compliance = 1e-5f;
     vc.lambda = 0;
     body.volumeConstraints.push_back(vc);
+
+    body.collisionPoints = {0, 1, 2, 3};
+    body.collisionShape = {0, 1, 2, 3};
 
     return body;
 }
@@ -64,6 +68,7 @@ sf::View SetupView(sf::RenderWindow &window)
 {
     sf::View view = window.getDefaultView();
     view.setSize(WINDOW_WIDTH, -WINDOW_HEIGHT);
+    view.zoom(0.5f);
     window.setView(view);
     return view;
 }
@@ -87,21 +92,21 @@ int main()
 
     bool cameraFollow = false;
 
-    glm::vec2 gravity = glm::vec2(0.0f, -9.8f);
+    glm::vec2 gravity = glm::vec2(0.0f, -0.8f);
     float simulationSpeed = 10.f;
     int solverSubsteps = 1;
-    int solverIterations = 2;
+    int solverIterations = 1;
 
     float groundY = 900.0f;
 
     BodiesManager bodiesManager;
     bodiesManager.AddSoftBody(CreateSoftSquare());
 
-    TickSystem tickSystem(60.0f);
+    TickSystem tickSystem(30.0f);
     tickSystem.SetTimeScale(10.f);
+    tickSystem.SetIsPause(true);
 
-    Renderer renderer;
-    renderer.SetWindow(&window);
+    Renderer::SetWindow(&window);
 
     sf::Clock clock;
     while (window.isOpen())
@@ -143,7 +148,21 @@ int main()
         tickSystem.Update(dtReal);
 
         while (tickSystem.Step())
+        {
+            window.clear();
             Simulate(bodiesManager.GetSoftBodies(), tickSystem.GetFixedDt(), solverSubsteps, solverIterations, gravity);
+
+            Renderer::DrawSoftBodies(bodiesManager.GetSoftBodies());
+
+            // std::cout << "Points: " << bodiesManager.GetSoftBody(0).collisionPoints[0] << std::endl;
+            // std::cout << "Points: " << bodiesManager.GetSoftBody(0).collisionPoints[1] << std::endl;
+            // std::cout << "Points: " << bodiesManager.GetSoftBody(0).collisionPoints[2] << std::endl;
+            // std::cout << "Points: " << bodiesManager.GetSoftBody(0).collisionPoints[3] << std::endl;
+            // std::cout << "Shape: " << bodiesManager.GetSoftBody(0).collisionShape[0] << std::endl;
+            // std::cout << "Shape: " << bodiesManager.GetSoftBody(0).collisionShape[1] << std::endl;
+            // std::cout << "Shape: " << bodiesManager.GetSoftBody(0).collisionShape[2] << std::endl;
+            // std::cout << "Shape: " << bodiesManager.GetSoftBody(0).collisionShape[3] << std::endl;
+        }
 
         // Draw
         if (cameraFollow)
@@ -155,9 +174,6 @@ int main()
             view.setCenter(cameraCenter);
             window.setView(view);
         }
-        
-        window.clear();
-        renderer.DrawSoftBodies(bodiesManager.GetSoftBodies());
 
         sf::RectangleShape ground(sf::Vector2f(800, 5));
         ground.setPosition(0, groundY);

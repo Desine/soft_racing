@@ -2,9 +2,11 @@
 #include <iostream>
 #include "glm/glm.hpp"
 
+sf::RenderWindow *Renderer::window = nullptr;
+
 void Renderer::SetWindow(sf::RenderWindow *window)
 {
-    this->window = window;
+    Renderer::window = window;
 }
 
 void Renderer::DrawLevel(const Level &level, float carPositionX, float fov, float precision)
@@ -122,4 +124,38 @@ void Renderer::DrawSoftBodies(std::vector<SoftBody> &softBodies)
             window->draw(line, 2, sf::Lines);
         }
     }
+}
+
+void Renderer::DrawCircle(const glm::vec2 &pos, float radius, const sf::Color &color)
+{
+    sf::CircleShape shape(radius);
+    shape.setFillColor(color);
+    shape.setOrigin(radius, radius);
+    shape.setPosition(pos.x, pos.y);
+    window->draw(shape);
+}
+
+void Renderer::DrawLine(const glm::vec2 &from, const glm::vec2 &to, const sf::Color &color)
+{
+    sf::Vertex line[] =
+        {
+            sf::Vertex(sf::Vector2f(from.x, from.y), color),
+            sf::Vertex(sf::Vector2f(to.x, to.y), color)};
+    window->draw(line, 2, sf::Lines);
+}
+
+void Renderer::DrawDebugCollision(const SoftBody &bodyA, const SoftBody &bodyB, const SoftSoftCollisionConstraint &constraint)
+{
+    const glm::vec2 &pA = bodyA.pointMasses.positions[constraint.pointIndexA];
+
+    DrawCircle(pA, 3.0f, sf::Color::Red);
+
+    const auto &shapeB = bodyB.collisionShape;
+    const auto &posB = bodyB.pointMasses.positions;
+    glm::vec2 e1 = posB[shapeB[constraint.edgeIndexB]];
+    glm::vec2 e2 = posB[shapeB[(constraint.edgeIndexB + 1) % shapeB.size()]];
+    DrawLine(e1, e2, sf::Color::Yellow);
+
+    glm::vec2 normalEnd = pA + constraint.normal * 20.0f;
+    DrawLine(pA, normalEnd, sf::Color::White);
 }

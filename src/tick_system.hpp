@@ -42,7 +42,7 @@ public:
     float GetTimeScale() const { return mTimeScale; }
     void SetTimeScale(float timeScale) { mTimeScale = timeScale; }
 
-    void SetPause(bool value) { mPaused = value; }
+    void SetIsPause(bool value) { mPaused = value; }
     bool IsPaused() const { return mPaused; }
 
     void StepOnce() { mStepOnce = true; }

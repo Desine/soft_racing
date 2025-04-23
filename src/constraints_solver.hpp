@@ -1,4 +1,5 @@
-//file ConstraintSolver.hpp
+//file constraint_solver.hpp
+#pragma once
 #include "soft_body.hpp"
 
 void SolveDistanceConstraints(PointMasses &pm, std::vector<DistanceConstraint> &constraints, float dt);
