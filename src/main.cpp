@@ -21,8 +21,8 @@ const int WINDOW_HEIGHT = 2000;
 
 SoftBody CreateSoftPolygon(int segments)
 {
-    if (segments < 3)
-        segments = 3;
+    if (segments < 5)
+        segments = 5;
 
     SoftBody softBody;
 
@@ -114,8 +114,8 @@ int main()
 
     glm::vec2 gravity = glm::vec2(0.0f, -9.8f);
     float simulationSpeed = 10.f;
-    int solverSubsteps = 1;
-    int solverIterations = 1;
+    int solverSubsteps = 5;
+    int solverIterations = 3;
 
     std::random_device dev;
     std::mt19937 rng(dev());

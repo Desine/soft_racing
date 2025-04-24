@@ -6,10 +6,9 @@ struct SoftSoftCollisionConstraint
 {
     SoftBody *bodyA;
     SoftBody *bodyB;
-    uint32_t pointIndexA;
-    uint32_t edgeIndexB;
-    glm::vec2 normal;
-    float distance;
+    uint32_t pointIndex;
+    uint32_t edgePointIndex0;
+    uint32_t edgePointIndex1;
     float compliance;
     float lambda = 0.0f;
 };
@@ -18,6 +17,5 @@ void DetectSoftSoftCollisions(
     const SoftBody &bodyA,
     const SoftBody &bodyB,
     float compliance,
-    float minDistanceThreshold,
     std::vector<SoftSoftCollisionConstraint> &outConstraints);
 void SolveSoftSoftCollisionConstraint(SoftSoftCollisionConstraint &constraint, float dt);

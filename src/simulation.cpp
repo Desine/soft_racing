@@ -44,14 +44,12 @@ void Simulate(std::vector<SoftBody> &softBodies, float dt, int substeps, int ite
                 DetectSoftSoftCollisions(
                     softBodies[i],
                     softBodies[j],
-                    /*compliance=*/0.3f,
-                    /*minDistanceThresholdf=*/100.01f,
+                    /*compliance=*/0.001f,
                     collisionConstraints);
                 DetectSoftSoftCollisions(
                     softBodies[j],
                     softBodies[i],
-                    /*compliance=*/0.3f,
-                    /*minDistanceThresholdf=*/100.01f,
+                    /*compliance=*/0.001f,
                     collisionConstraints);
             }
         }

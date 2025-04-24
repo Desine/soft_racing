@@ -1,6 +1,7 @@
 #include "renderer.hpp"
 #include <iostream>
 #include "glm/glm.hpp"
+#include "utils.hpp"
 
 sf::RenderWindow *Renderer::window = nullptr;
 
@@ -160,16 +161,16 @@ void Renderer::DrawLine(const glm::vec2 &from, const glm::vec2 &to, const sf::Co
 
 void Renderer::DrawDebugCollision(const SoftBody &bodyA, const SoftBody &bodyB, const SoftSoftCollisionConstraint &constraint)
 {
-    const glm::vec2 &pA = bodyA.pointMasses.positions[constraint.pointIndexA];
+    const glm::vec2 &pA = bodyA.pointMasses.positions[constraint.pointIndex];
 
     DrawCircle(pA, 3.0f, sf::Color::Red);
 
-    const auto &shapeB = bodyB.collisionShape;
     const auto &posB = bodyB.pointMasses.positions;
-    glm::vec2 e1 = posB[shapeB[constraint.edgeIndexB]];
-    glm::vec2 e2 = posB[shapeB[(constraint.edgeIndexB + 1) % shapeB.size()]];
+    glm::vec2 e1 = posB[constraint.edgePointIndex0];
+    glm::vec2 e2 = posB[constraint.edgePointIndex1];
     DrawLine(e1, e2, sf::Color::Yellow);
 
-    glm::vec2 normalEnd = pA + constraint.normal * 20.0f;
-    DrawLine(pA, normalEnd, sf::Color::White);
+    glm::vec2 normal = glm::normalize(Perp2D(e1 - e2));
+    glm::vec2 normalEnd = pA + normal * 30.0f;
+    DrawLine(pA, normalEnd, sf::Color::Red);
 }

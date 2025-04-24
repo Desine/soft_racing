@@ -6,13 +6,13 @@ void SolveDistanceConstraints(PointMasses &pm, std::vector<DistanceConstraint> &
 {
     for (auto &c : constraints)
     {
-        auto &x1 = pm.positions[c.i1];
-        auto &x2 = pm.positions[c.i2];
+        auto &p1 = pm.positions[c.i1];
+        auto &p2 = pm.positions[c.i2];
 
         float w1 = pm.inverseMasses[c.i1];
         float w2 = pm.inverseMasses[c.i2];
 
-        glm::vec2 delta = x1 - x2;
+        glm::vec2 delta = p1 - p2;
         float len = glm::length(delta);
         if (len < 1e-6f)
             continue;
@@ -23,12 +23,12 @@ void SolveDistanceConstraints(PointMasses &pm, std::vector<DistanceConstraint> &
         float alphaTilde = c.compliance / (dt * dt);
         float denom = w1 + w2 + alphaTilde;
         float deltaLambda = (-C - alphaTilde * c.lambda) / denom;
+        c.lambda += deltaLambda;
 
         glm::vec2 corr = deltaLambda * grad;
 
-        x1 += w1 * corr;
-        x2 -= w2 * corr;
-        c.lambda += deltaLambda;
+        p1 += w1 * corr;
+        p2 -= w2 * corr;
     }
 }
 
@@ -92,7 +92,8 @@ void SolvePinConstraints(PointMasses &pm, std::vector<PinConstraint> &constraint
         float denom = wi + alphaTilde;
         float deltaLambda = (-C - alphaTilde * c.lambda) / denom;
 
-        xi += wi * deltaLambda * (-grad);
         c.lambda += deltaLambda;
+
+        xi += wi * deltaLambda * (-grad);
     }
 }
