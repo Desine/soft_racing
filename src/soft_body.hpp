@@ -15,21 +15,29 @@ struct DistanceConstraint
 {
     uint32_t i1, i2;
     float restDistance;
-    float compliance;
+    float compliance = 0.0f;
     float lambda = 0.0f;
 };
 struct VolumeConstraint
 {
     std::vector<uint32_t> indices;
     float restVolume;
-    float compliance;
+    float compliance = 0.0f;
+    float lambda = 0.0f;
+};
+struct ShapeMatchingConstraint
+{
+    std::vector<uint32_t> indices;         // of PointMasses.positions
+    std::vector<glm::vec2> startPositions; // of PointMasses.positions[indicex]. global coordinate
+    glm::vec2 startCenterMass;             // of startPositions. global coordinate
+    float compliance = 0.0f;
     float lambda = 0.0f;
 };
 struct PinConstraint
 {
     uint32_t index;
     glm::vec2 targetPosition;
-    float compliance;
+    float compliance = 0.0f;
     float lambda = 0.0f;
 };
 
@@ -38,6 +46,7 @@ struct SoftBody
     PointMasses pointMasses;
     std::vector<DistanceConstraint> distanceConstraints;
     std::vector<VolumeConstraint> volumeConstraints;
+    std::vector<ShapeMatchingConstraint> shapeMatchingConstraints;
     std::vector<PinConstraint> pinConstraints;
     std::vector<uint32_t> collisionPoints;
     std::vector<uint32_t> collisionShape;
@@ -57,6 +66,7 @@ void ResetConstrainsLambdas(SoftBody &softBody);
 
 float ComputePolygonArea(const std::vector<glm::vec2> &positions, const std::vector<uint32_t> &indices);
 glm::vec2 ComputeGeometryCenter(const std::vector<glm::vec2> &positions);
+glm::vec2 ComputeMassCenter(const std::vector<glm::vec2> &positions, const std::vector<float> &inverseMasses);
 
 std::vector<RayHit> RaycastAllIntersections(const glm::vec2 &origin, const glm::vec2 &direction, const SoftBody &body);
 std::optional<RayHit> RaycastFirstIntersection(const glm::vec2 &origin, const glm::vec2 &direction, const SoftBody &body);

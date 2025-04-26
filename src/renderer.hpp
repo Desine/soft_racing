@@ -20,5 +20,5 @@ public:
 
     static void DrawCircle(const glm::vec2 &pos, float radius, const sf::Color &color);
     static void DrawLine(const glm::vec2 &from, const glm::vec2 &to, const sf::Color &color);
-    static void DrawDebugCollision(const SoftBody &bodyA, const SoftBody &bodyB, const SoftSoftCollisionConstraint &constraint);
+    static void DrawSoftSoftPointEdgeCollision(const SoftBody &bodyA, const SoftBody &bodyB, const SoftSoftCollisionConstraint &constraint);
 };

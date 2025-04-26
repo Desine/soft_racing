@@ -28,30 +28,47 @@ SoftBody CreateSoftPolygon(int segments)
 
     glm::vec2 origin(0.0f, 300.0f);
     float radius = 50.0f;
+    float mass = 10;
 
     softBody.pointMasses.positions = CreatePoigonPositions(segments, radius, origin);
     softBody.pointMasses.prevPositions = softBody.pointMasses.positions;
     softBody.pointMasses.velocities.resize(segments, glm::vec2(0.0f));
-    softBody.pointMasses.inverseMasses.resize(segments, 1.0f);
-    softBody.pointMasses.velocities[0].x = 3.f; // one point
+    softBody.pointMasses.inverseMasses.resize(segments, 1.0f / (mass / segments));
 
     AddDistanceConstraintsToLoop(softBody, 1e-5f);
-    AddVolumeConstraintToLoop(softBody, 1e-5f);
+    AddVolumeConstraintToLoop(softBody, 1e-4f);
 
     AddCollisionPointsToLoop(softBody);
     AddCollisionShapeToLoop(softBody);
+
+    // glm::vec2 centerPosition = ComputeGeometryCenter(softBody.pointMasses.positions);
+    glm::vec2 centerMass = ComputeMassCenter(softBody.pointMasses.positions, softBody.pointMasses.inverseMasses);
+    ShapeMatchingConstraint shapeMatchingConstraint;
+    shapeMatchingConstraint.startCenterMass = centerMass;
+    shapeMatchingConstraint.compliance = 0.01f;
+    shapeMatchingConstraint.lambda = 0.0f;
+    for (int i = 0; i < segments; ++i)
+    {
+        shapeMatchingConstraint.startPositions.push_back(softBody.pointMasses.positions[i]);
+        shapeMatchingConstraint.indices.push_back(i);
+    }
+    // softBody.shapeMatchingConstraints.push_back(shapeMatchingConstraint);
+
+    // testing
+    // softBody.pointMasses.velocities[0].x = 3.f; // one point
+    // softBody.pointMasses.positions[0] += glm::vec2(300.0f, 0.0f);
 
     return softBody;
 }
 
 SoftBody CreateGround()
 {
-    SoftBody body;
+    SoftBody softBody;
 
     float spacing = 500.0f;
     glm::vec2 origin(0.0f, -300.0f);
 
-    body.pointMasses.positions = {
+    softBody.pointMasses.positions = {
         origin + glm::vec2(-spacing, -spacing / 2),
         origin + glm::vec2(-spacing, spacing / 4),
 
@@ -62,16 +79,16 @@ SoftBody CreateGround()
 
         origin + glm::vec2(spacing, spacing / 4),
         origin + glm::vec2(spacing, -spacing / 2)};
-    int pointCount = body.pointMasses.positions.size();
+    int pointCount = softBody.pointMasses.positions.size();
 
-    body.pointMasses.prevPositions = body.pointMasses.positions;
-    body.pointMasses.velocities.resize(pointCount, glm::vec2(0.0f));
-    body.pointMasses.inverseMasses.resize(pointCount, 0.0f);
+    softBody.pointMasses.prevPositions = softBody.pointMasses.positions;
+    softBody.pointMasses.velocities.resize(pointCount, glm::vec2(0.0f));
+    softBody.pointMasses.inverseMasses.resize(pointCount, 0.0f);
 
-    body.collisionPoints = {0, 1, 2, 3, 4, 5, 6, 7};
-    body.collisionShape = {0, 1, 2, 3, 4, 5, 6, 7};
+    AddCollisionPointsToLoop(softBody);
+    AddCollisionShapeToLoop(softBody);
 
-    return body;
+    return softBody;
 }
 
 void SetupWindow(sf::RenderWindow &window)
@@ -121,7 +138,7 @@ int main()
     std::mt19937 rng(dev());
 
     BodiesManager bodiesManager;
-    bodiesManager.AddSoftBody(CreateSoftPolygon(4));
+    bodiesManager.AddSoftBody(CreateSoftPolygon(7));
     bodiesManager.AddSoftBody(CreateGround());
 
     TickSystem tickSystem(30.0f);
@@ -154,13 +171,13 @@ int main()
         if (ImGui::Button("Reset"))
         {
             bodiesManager.Clear();
-            bodiesManager.AddSoftBody(CreateSoftPolygon(rng() % 10));
+            bodiesManager.AddSoftBody(CreateSoftPolygon(rng() % 20));
             bodiesManager.AddSoftBody(CreateGround());
         }
         if (ImGui::Button("Add body"))
         {
 
-            bodiesManager.AddSoftBody(CreateSoftPolygon(rng() % 10));
+            bodiesManager.AddSoftBody(CreateSoftPolygon(rng() % 20));
         }
         if (ImGui::Button(cameraFollow ? "Camera !follow" : "Camera follow"))
             cameraFollow = !cameraFollow;

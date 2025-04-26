@@ -1,9 +1,9 @@
 // file soft_body.cpp
 #include "soft_body.hpp"
 #include "utils.hpp"
+
 #include <algorithm>
 #include <limits>
-
 #include <iostream>
 
 DistanceConstraint CreateDistanceConstraint(const std::vector<glm::vec2> &positions, uint32_t i1, uint32_t i2, float compliance)
@@ -27,6 +27,9 @@ void ResetConstrainsLambdas(SoftBody &softBody)
         c.lambda = 0.0f;
 
     for (auto &c : softBody.volumeConstraints)
+        c.lambda = 0.0f;
+
+    for (auto &c : softBody.shapeMatchingConstraints)
         c.lambda = 0.0f;
 
     for (auto &c : softBody.pinConstraints)
@@ -53,6 +56,25 @@ glm::vec2 ComputeGeometryCenter(const std::vector<glm::vec2> &positions)
         center += p;
 
     return center /= positions.size();
+}
+
+glm::vec2 ComputeMassCenter(const std::vector<glm::vec2> &positions, const std::vector<float> &inverseMasses)
+{
+    glm::vec2 massCenter = glm::vec2(0.0f);
+    float totalMass = 0.0f;
+
+    for (size_t i = 0; i < positions.size(); ++i)
+    {
+        float w = inverseMasses[i];
+        float m = (w > 0.0f) ? 1.0f / w : 0.0f;
+        massCenter += positions[i] * m;
+        totalMass += m;
+    }
+
+    if (totalMass > 0.0f)
+        massCenter /= totalMass;
+
+    return massCenter;
 }
 
 std::vector<RayHit> RaycastAllIntersections(const glm::vec2 &origin, const glm::vec2 &direction, const SoftBody &body)

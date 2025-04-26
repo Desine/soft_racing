@@ -1,6 +1,11 @@
 // file ConstraintSolver.hpp
+#include "constraints_solver.hpp"
 #include "soft_body.hpp"
 #include "utils.hpp"
+
+#include <iostream>
+#include <SFML/Graphics.hpp>
+#include "renderer.hpp"
 
 void SolveDistanceConstraints(PointMasses &pm, std::vector<DistanceConstraint> &constraints, float dt)
 {
@@ -95,5 +100,34 @@ void SolvePinConstraints(PointMasses &pm, std::vector<PinConstraint> &constraint
         c.lambda += deltaLambda;
 
         xi += wi * deltaLambda * (-grad);
+    }
+}
+
+// glm::mat2 ComputeOptimalRotation2D(const glm::mat2 &A)
+// {
+//     // Находим ближайшую матрицу вращения через полярное разложение
+//     glm::vec2 a0 = A[0];
+//     glm::vec2 a1 = A[1];
+
+//     glm::vec2 r0 = a0;
+//     glm::vec2 r1 = a1 - glm::dot(a1, r0) / glm::dot(r0, r0) * r0;
+
+//     r0 = glm::normalize(r0);
+//     r1 = glm::normalize(r1);
+
+//     glm::mat2 R;
+//     R[0] = r0;
+//     R[1] = glm::vec2(-r0.y, r0.x); // ортогональный вектор (в 2D достаточно этого)
+
+//     return R;
+// }
+
+void SolveShapeMatchingConstraints(PointMasses& pm,
+                                   std::vector<ShapeMatchingConstraint>& constraints,
+                                   float dt)
+{
+    for (auto& c : constraints)
+    {
+        
     }
 }

@@ -8,8 +8,6 @@
 
 void Simulate(std::vector<SoftBody> &softBodies, float dt, int substeps, int iterations, const glm::vec2 &gravity)
 {
-    std::cout << "\n\nSimulate." << std::endl;
-
     float substepDt = dt / substeps;
 
     for (int step = 0; step < substeps; ++step)
@@ -25,14 +23,10 @@ void Simulate(std::vector<SoftBody> &softBodies, float dt, int substeps, int ite
                 SolveDistanceConstraints(softBody.pointMasses, softBody.distanceConstraints, substepDt);
                 SolveVolumeConstraints(softBody.pointMasses, softBody.volumeConstraints, substepDt);
                 SolvePinConstraints(softBody.pointMasses, softBody.pinConstraints, substepDt);
+                SolveShapeMatchingConstraints(softBody.pointMasses, softBody.shapeMatchingConstraints, substepDt);
             }
 
             Renderer::DrawSoftBody(softBody);
-
-            auto center = ComputeGeometryCenter(softBody.pointMasses.positions);
-            std::cout << "\nsoftBody center before collision x: " << center.x << " y: " << center.y << std::endl;
-            for (int i = 0; i < softBody.pointMasses.positions.size(); i++)
-                std::cout << "point: " << i << " x: " << softBody.pointMasses.positions[i].x << " y: " << softBody.pointMasses.positions[i].y << std::endl;
         }
 
         // detection collisions
@@ -44,12 +38,18 @@ void Simulate(std::vector<SoftBody> &softBodies, float dt, int substeps, int ite
                 DetectSoftSoftCollisions(
                     softBodies[i],
                     softBodies[j],
-                    /*compliance=*/0.001f,
+                    /*compliance=*/0.0001f,
+                    /*frictionStatic*/ 1.0f,
+                    /*frictionKinetic*/ 0.3f,
+
                     collisionConstraints);
                 DetectSoftSoftCollisions(
                     softBodies[j],
                     softBodies[i],
-                    /*compliance=*/0.001f,
+                    /*compliance=*/0.0001f,
+                    /*frictionStatic*/ 1.0f,
+                    /*frictionKinetic*/ 0.3f,
+
                     collisionConstraints);
             }
         }
@@ -57,7 +57,7 @@ void Simulate(std::vector<SoftBody> &softBodies, float dt, int substeps, int ite
         // solve collisions
         for (auto &constraint : collisionConstraints)
         {
-            Renderer::DrawDebugCollision(*constraint.bodyA, *constraint.bodyB, constraint);
+            // Renderer::DrawSoftSoftPointEdgeCollision(*constraint.bodyA, *constraint.bodyB, constraint);
 
             for (int i = 0; i < iterations; ++i)
                 SolveSoftSoftCollisionConstraint(constraint, substepDt);
@@ -67,12 +67,8 @@ void Simulate(std::vector<SoftBody> &softBodies, float dt, int substeps, int ite
     // update velocity
     for (SoftBody &softBody : softBodies)
     {
-        Renderer::DrawSoftBody(softBody);
-        auto center = ComputeGeometryCenter(softBody.pointMasses.positions);
-        std::cout << "\nsoftBody center after collision x: " << center.x << " y: " << center.y << std::endl;
-        for (int i = 0; i < softBody.pointMasses.positions.size(); i++)
-            std::cout << "point: " << i << " x: " << softBody.pointMasses.positions[i].x << " y: " << softBody.pointMasses.positions[i].y << std::endl;
-
         UpdateVelocities(softBody.pointMasses, substepDt);
+
+        Renderer::DrawSoftBody(softBody);
     }
 }

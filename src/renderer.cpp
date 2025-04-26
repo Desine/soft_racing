@@ -159,7 +159,7 @@ void Renderer::DrawLine(const glm::vec2 &from, const glm::vec2 &to, const sf::Co
     window->draw(line, 2, sf::Lines);
 }
 
-void Renderer::DrawDebugCollision(const SoftBody &bodyA, const SoftBody &bodyB, const SoftSoftCollisionConstraint &constraint)
+void Renderer::DrawSoftSoftPointEdgeCollision(const SoftBody &bodyA, const SoftBody &bodyB, const SoftSoftCollisionConstraint &constraint)
 {
     const glm::vec2 &pA = bodyA.pointMasses.positions[constraint.pointIndex];
 

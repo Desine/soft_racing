@@ -8,7 +8,7 @@ inline void TickSystemImGui(TickSystem &tickSystem)
 
     ImGui::Text("Tick Rate: %.2f Hz", 1.0f / tickSystem.GetFixedDt());
     float tickRate = tickSystem.GetTickRate();
-    if (ImGui::SliderFloat("Tick rate", &tickRate, 0.1f, 120.0f, "%.2fx"))
+    if (ImGui::SliderFloat("Tick rate", &tickRate, 1.f, 120.0f, "%.2fx"))
         tickSystem.SetTickRate(tickRate);
 
     if (ImGui::Button("Step"))
