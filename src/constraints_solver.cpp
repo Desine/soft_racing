@@ -86,7 +86,7 @@ void SolvePinConstraints(PointMasses &pm, std::vector<PinConstraint> &constraint
         if (wi == 0.0f)
             continue;
 
-        glm::vec2 grad = xi - c.targetPosition;
+        glm::vec2 grad = c.targetPosition - xi;
         float C = glm::length(grad);
         if (C < 1e-6f)
             continue;
@@ -122,12 +122,11 @@ void SolvePinConstraints(PointMasses &pm, std::vector<PinConstraint> &constraint
 //     return R;
 // }
 
-void SolveShapeMatchingConstraints(PointMasses& pm,
-                                   std::vector<ShapeMatchingConstraint>& constraints,
+void SolveShapeMatchingConstraints(PointMasses &pm,
+                                   std::vector<ShapeMatchingConstraint> &constraints,
                                    float dt)
 {
-    for (auto& c : constraints)
+    for (auto &c : constraints)
     {
-        
     }
 }

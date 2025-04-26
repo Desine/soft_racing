@@ -28,8 +28,8 @@ struct VolumeConstraint
 struct ShapeMatchingConstraint
 {
     std::vector<uint32_t> indices;         // of PointMasses.positions
-    std::vector<glm::vec2> startPositions; // of PointMasses.positions[indicex]. global coordinate
-    glm::vec2 startCenterMass;             // of startPositions. global coordinate
+    std::vector<glm::vec2> startPositions; // of PointMasses.positions[indices]
+    glm::vec2 startCenterMass;             // of 1.0f / PointMasses.inverseMasses[indices]
     float compliance = 0.0f;
     float lambda = 0.0f;
 };

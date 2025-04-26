@@ -54,6 +54,11 @@ SoftBody CreateSoftPolygon(int segments)
     }
     // softBody.shapeMatchingConstraints.push_back(shapeMatchingConstraint);
 
+    PinConstraint pinConstraint;
+    pinConstraint.index = 0;
+    pinConstraint.targetPosition = glm::vec2(0.0f, 350.0f);
+    // softBody.pinConstraints.push_back(pinConstraint);
+
     // testing
     // softBody.pointMasses.velocities[0].x = 3.f; // one point
     // softBody.pointMasses.positions[0] += glm::vec2(300.0f, 0.0f);
