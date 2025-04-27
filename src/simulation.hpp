@@ -1,6 +1,5 @@
-//file Simulation.hpp
 #pragma once
 #include "soft_body.hpp"
+#include "physics_scene.hpp"
 
-
-void Simulate(std::vector<SoftBody> &softBodies, float dt, int substeps, int iterations, const glm::vec2 &gravity);
+void Simulate(PhysicsScene &physicsScene, float dt, int substeps, int iterations);

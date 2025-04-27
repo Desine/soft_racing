@@ -159,13 +159,13 @@ void Renderer::DrawLine(const glm::vec2 &from, const glm::vec2 &to, const sf::Co
     window->draw(line, 2, sf::Lines);
 }
 
-void Renderer::DrawSoftSoftPointEdgeCollision(const SoftBody &bodyA, const SoftBody &bodyB, const SoftSoftCollisionConstraint &constraint)
+void Renderer::DrawSoftSoftPointEdgeCollision(const SoftSoftCollisionConstraint &constraint)
 {
-    const glm::vec2 &pA = bodyA.pointMasses.positions[constraint.pointIndex];
+    const glm::vec2 &pA = constraint.bodyA->pointMasses.positions[constraint.pointIndex];
 
     DrawCircle(pA, 3.0f, sf::Color::Red);
 
-    const auto &posB = bodyB.pointMasses.positions;
+    const auto &posB = constraint.bodyB->pointMasses.positions;
     glm::vec2 e1 = posB[constraint.edgePointIndex0];
     glm::vec2 e2 = posB[constraint.edgePointIndex1];
     DrawLine(e1, e2, sf::Color::Yellow);

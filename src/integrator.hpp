@@ -1,4 +1,3 @@
-//file Integrator.hpp
 #pragma once
 #include "soft_body.hpp"
 

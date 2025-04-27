@@ -1,4 +1,3 @@
-// file soft_body.cpp
 #include "soft_body.hpp"
 #include "utils.hpp"
 

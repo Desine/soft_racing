@@ -1,4 +1,3 @@
-// file constraint_solver.hpp
 #pragma once
 #include "soft_body.hpp"
 

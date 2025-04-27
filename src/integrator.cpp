@@ -1,4 +1,3 @@
-// file Integrator.cpp
 #include "integrator.hpp"
 #include "soft_body.hpp"
 

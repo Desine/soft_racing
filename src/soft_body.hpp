@@ -1,4 +1,3 @@
-// file soft_body.hpp
 #pragma once
 #include <vector>
 #include "glm/glm.hpp"

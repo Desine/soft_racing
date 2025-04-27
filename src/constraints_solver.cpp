@@ -1,4 +1,3 @@
-// file ConstraintSolver.hpp
 #include "constraints_solver.hpp"
 #include "soft_body.hpp"
 #include "utils.hpp"

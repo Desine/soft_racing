@@ -1,33 +1,41 @@
-// file simulation.cpp
 #include "simulation.hpp"
 #include "integrator.hpp"
 #include "constraints_solver.hpp"
 #include "collision_system.hpp"
 #include "renderer.hpp"
+#include "joint_system.hpp"
+
 #include <iostream>
 
-void Simulate(std::vector<SoftBody> &softBodies, float dt, int substeps, int iterations, const glm::vec2 &gravity)
+void Simulate(PhysicsScene &physicsScene, float dt, int substeps, int iterations)
 {
-    float substepDt = dt / substeps;
+    std::vector<SoftBody> &softBodies = physicsScene.softBodies;
+    float substep_dt = dt / substeps;
 
     for (int step = 0; step < substeps; ++step)
     {
-        for (SoftBody &softBody : softBodies)
+        for (SoftBody &sb : softBodies)
         {
-            Integrate(softBody.pointMasses, substepDt, gravity);
+            Integrate(sb.pointMasses, substep_dt, physicsScene.gravity);
 
-            ResetConstrainsLambdas(softBody);
+            ResetConstrainsLambdas(sb);
 
             for (int i = 0; i < iterations; ++i)
             {
-                SolveDistanceConstraints(softBody.pointMasses, softBody.distanceConstraints, substepDt);
-                SolveVolumeConstraints(softBody.pointMasses, softBody.volumeConstraints, substepDt);
-                SolveAngleConstraints(softBody.pointMasses, softBody.angleConstraints, substepDt);
-                SolvePinConstraints(softBody.pointMasses, softBody.pinConstraints, substepDt);
-                SolveShapeMatchingConstraints(softBody.pointMasses, softBody.shapeMatchingConstraints, substepDt);
+                SolveDistanceConstraints(sb.pointMasses, sb.distanceConstraints, substep_dt);
+                SolveVolumeConstraints(sb.pointMasses, sb.volumeConstraints, substep_dt);
+                SolveAngleConstraints(sb.pointMasses, sb.angleConstraints, substep_dt);
+                SolvePinConstraints(sb.pointMasses, sb.pinConstraints, substep_dt);
+                SolveShapeMatchingConstraints(sb.pointMasses, sb.shapeMatchingConstraints, substep_dt);
             }
 
-            Renderer::DrawSoftBody(softBody);
+            // Renderer::DrawSoftBody(softBody);
+        }
+
+        ResetJointsLambdas(physicsScene.distanceJoints);
+        for (int i = 0; i < iterations; ++i)
+        {
+            SolveDistanceJoints(physicsScene.distanceJoints, substep_dt);
         }
 
         // detection collisions
@@ -56,20 +64,18 @@ void Simulate(std::vector<SoftBody> &softBodies, float dt, int substeps, int ite
         }
 
         // solve collisions
-        for (auto &constraint : collisionConstraints)
+        for (auto &cc : collisionConstraints)
         {
-            // Renderer::DrawSoftSoftPointEdgeCollision(*constraint.bodyA, *constraint.bodyB, constraint);
+            // Renderer::DrawSoftSoftPointEdgeCollision(cc);
 
             for (int i = 0; i < iterations; ++i)
-                SolveSoftSoftCollisionConstraint(constraint, substepDt);
+                SolveSoftSoftCollisionConstraint(cc, substep_dt);
         }
-    }
 
-    // update velocity
-    for (SoftBody &softBody : softBodies)
-    {
-        UpdateVelocities(softBody.pointMasses, substepDt);
-
-        Renderer::DrawSoftBody(softBody);
+        // update velocity
+        for (SoftBody &sb : softBodies)
+        {
+            UpdateVelocities(sb.pointMasses, substep_dt);
+        }
     }
 }
