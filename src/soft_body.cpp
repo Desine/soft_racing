@@ -21,12 +21,33 @@ DistanceConstraint CreateDistanceConstraint(const std::vector<glm::vec2> &positi
     constraint.restDistance = restDistance;
     return constraint;
 }
+AngleConstraint CreateAngleConstraint(const std::vector<glm::vec2> &positions, uint32_t i1, uint32_t i2, uint32_t i3, float compliance)
+{
+    AngleConstraint constraint;
+    constraint.i1 = i1;
+    constraint.i2 = i2;
+    constraint.i3 = i3;
+    constraint.compliance = compliance;
+    constraint.restAngle = CalculateAngle(positions[i1], positions[i2], positions[i3]);
+    return constraint;
+}
+
+AngleConstraint CreateAngleConstraint(const std::vector<glm::vec2> &positions, uint32_t i1, uint32_t i2, uint32_t i3, float compliance, float restAngle)
+{
+    AngleConstraint constraint = CreateAngleConstraint(positions, i1, i2, i3, compliance);
+    constraint.restAngle = restAngle;
+    return constraint;
+}
+
 void ResetConstrainsLambdas(SoftBody &softBody)
 {
     for (auto &c : softBody.distanceConstraints)
         c.lambda = 0.0f;
 
     for (auto &c : softBody.volumeConstraints)
+        c.lambda = 0.0f;
+
+    for (auto &c : softBody.angleConstraints)
         c.lambda = 0.0f;
 
     for (auto &c : softBody.shapeMatchingConstraints)
@@ -57,7 +78,6 @@ glm::vec2 ComputeGeometryCenter(const std::vector<glm::vec2> &positions)
 
     return center /= positions.size();
 }
-
 glm::vec2 ComputeMassCenter(const std::vector<glm::vec2> &positions, const std::vector<float> &inverseMasses)
 {
     glm::vec2 massCenter = glm::vec2(0.0f);

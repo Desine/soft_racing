@@ -22,6 +22,7 @@ void Simulate(std::vector<SoftBody> &softBodies, float dt, int substeps, int ite
             {
                 SolveDistanceConstraints(softBody.pointMasses, softBody.distanceConstraints, substepDt);
                 SolveVolumeConstraints(softBody.pointMasses, softBody.volumeConstraints, substepDt);
+                SolveAngleConstraints(softBody.pointMasses, softBody.angleConstraints, substepDt);
                 SolvePinConstraints(softBody.pointMasses, softBody.pinConstraints, substepDt);
                 SolveShapeMatchingConstraints(softBody.pointMasses, softBody.shapeMatchingConstraints, substepDt);
             }

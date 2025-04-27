@@ -37,7 +37,7 @@ SoftBody LoadSoftBodyFromFile(const std::string &filename)
         DistanceConstraint constraint;
         float compliance = dc.value("compliance", 0.0f);
         if (dc.contains("restDistance"))
-            constraint = CreateDistanceConstraint(softBody.pointMasses.positions, dc["i1"], dc["i2"], dc["restDistance"], compliance);
+            constraint = CreateDistanceConstraint(softBody.pointMasses.positions, dc["i1"], dc["i2"], compliance, dc["restDistance"]);
         else
             constraint = CreateDistanceConstraint(softBody.pointMasses.positions, dc["i1"], dc["i2"], compliance);
         softBody.distanceConstraints.push_back(constraint);
@@ -56,6 +56,18 @@ SoftBody LoadSoftBodyFromFile(const std::string &filename)
         softBody.volumeConstraints.push_back(constraint);
     }
 
+    // AngleConstraints
+    for (const auto &dc : j["angleConstraints"])
+    {
+        AngleConstraint constraint;
+        float compliance = dc.value("compliance", 0.0f);
+        if (dc.contains("restAngle"))
+            constraint = CreateAngleConstraint(softBody.pointMasses.positions, dc["i1"], dc["i2"], dc["i3"], compliance, dc["restAngle"]);
+        else
+            constraint = CreateAngleConstraint(softBody.pointMasses.positions, dc["i1"], dc["i2"], dc["i3"], compliance);
+        softBody.angleConstraints.push_back(constraint);
+    }
+
     // ShapeMatchingConstraints
     for (const auto &smc : j["shapeMatchingConstraints"])
     {
@@ -64,7 +76,8 @@ SoftBody LoadSoftBodyFromFile(const std::string &filename)
 
         std::vector<float> inverseMasses;
 
-        for (const auto &idx : smc["indices"]){
+        for (const auto &idx : smc["indices"])
+        {
             constraint.indices.push_back(idx);
             inverseMasses.push_back(softBody.pointMasses.inverseMasses[idx]);
         }

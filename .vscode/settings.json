@@ -58,6 +58,13 @@
         "variant": "cpp",
         "iomanip": "cpp",
         "iostream": "cpp",
-        "*.сpp": "cpp"
+        "*.сpp": "cpp",
+        "any": "cpp",
+        "codecvt": "cpp",
+        "forward_list": "cpp",
+        "ratio": "cpp",
+        "fstream": "cpp",
+        "ranges": "cpp",
+        "valarray": "cpp"
     }
 }

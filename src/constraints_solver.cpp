@@ -77,6 +77,45 @@ void SolveVolumeConstraints(PointMasses &pm, std::vector<VolumeConstraint> &cons
     }
 }
 
+void SolveAngleConstraints(PointMasses &pm, std::vector<AngleConstraint> &constraints, float dt)
+{
+    for (auto &constraint : constraints)
+    {
+        uint32_t i1 = constraint.i1;
+        uint32_t i2 = constraint.i2;
+        uint32_t i3 = constraint.i3;
+
+        glm::vec2 &p1 = pm.positions[i1];
+        glm::vec2 &p2 = pm.positions[i2];
+        glm::vec2 &p3 = pm.positions[i3];
+
+        float w1 = pm.inverseMasses[i1];
+        float w2 = pm.inverseMasses[i2];
+        float w3 = pm.inverseMasses[i3];
+
+        glm::vec2 d1 = glm::normalize(p1 - p2);
+        glm::vec2 d2 = glm::normalize(p3 - p2);
+
+        float C = CalculateAngle(p1, p2, p3) - constraint.restAngle;
+
+        glm::vec2 grad_p1 = (1.0f / glm::length(p1 - p2)) * glm::vec2(-d2.y, d2.x);
+        glm::vec2 grad_p3 = (1.0f / glm::length(p3 - p2)) * glm::vec2(d1.y, -d1.x);
+        glm::vec2 grad_p2 = -(grad_p1 + grad_p3);
+
+        float invMass = w1 * glm::dot(grad_p1, grad_p1) +
+                        w2 * glm::dot(grad_p2, grad_p2) +
+                        w3 * glm::dot(grad_p3, grad_p3);
+
+        float alpha = constraint.compliance / (dt * dt);
+        float deltaLambda = (-C - alpha * constraint.lambda) / (invMass + alpha);
+        constraint.lambda += deltaLambda;
+
+        p1 += w1 * deltaLambda * grad_p1;
+        p2 += w2 * deltaLambda * grad_p2;
+        p3 += w3 * deltaLambda * grad_p3;
+    }
+}
+
 void SolvePinConstraints(PointMasses &pm, std::vector<PinConstraint> &constraints, float dt)
 {
     for (auto &c : constraints)

@@ -25,6 +25,13 @@ struct VolumeConstraint
     float compliance = 0.0f;
     float lambda = 0.0f;
 };
+struct AngleConstraint
+{
+    uint32_t i1, i2, i3;
+    float restAngle;
+    float compliance = 0.0f;
+    float lambda = 0.0f;
+};
 struct ShapeMatchingConstraint
 {
     std::vector<uint32_t> indices;         // of PointMasses.positions
@@ -46,6 +53,7 @@ struct SoftBody
     PointMasses pointMasses;
     std::vector<DistanceConstraint> distanceConstraints;
     std::vector<VolumeConstraint> volumeConstraints;
+    std::vector<AngleConstraint> angleConstraints;
     std::vector<ShapeMatchingConstraint> shapeMatchingConstraints;
     std::vector<PinConstraint> pinConstraints;
     std::vector<uint32_t> collisionPoints;
@@ -61,6 +69,9 @@ struct RayHit
 
 DistanceConstraint CreateDistanceConstraint(const std::vector<glm::vec2> &positions, uint32_t i1, uint32_t i2, float compliance = 0.0f);
 DistanceConstraint CreateDistanceConstraint(const std::vector<glm::vec2> &positions, uint32_t i1, uint32_t i2, float compliance, float restDistance);
+
+AngleConstraint CreateAngleConstraint(const std::vector<glm::vec2> &positions, uint32_t i1, uint32_t i2, uint32_t i3, float compliance = 0.0f);
+AngleConstraint CreateAngleConstraint(const std::vector<glm::vec2> &positions, uint32_t i1, uint32_t i2, uint32_t i3, float compliance, float restAngle);
 
 void ResetConstrainsLambdas(SoftBody &softBody);
 

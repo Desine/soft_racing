@@ -126,6 +126,8 @@ bool SetupImGui(sf::RenderWindow &window)
     return true;
 }
 
+
+
 int main()
 {
     sf::RenderWindow window;
