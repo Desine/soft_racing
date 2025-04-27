@@ -3,11 +3,11 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/include/imgui",
-                "${workspaceFolder}/include/imgui-sfml",
                 "/usr/include",
                 "/usr/local/include",
-                "${workspaceFolder}/include/imgui-sfml-2.6.1"
+                "${workspaceFolder}/include/imgui",
+                "${workspaceFolder}/include/imgui-sfml",
+                "${workspaceFolder}/include/nlohmann"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",

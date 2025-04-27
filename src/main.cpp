@@ -15,6 +15,7 @@
 #include "level.hpp"
 #include "tick_system_imgui.hpp"
 #include "bodies_manager.hpp"
+#include "soft_body_loader.hpp"
 
 const int WINDOW_WIDTH = 2000;
 const int WINDOW_HEIGHT = 2000;
@@ -180,10 +181,9 @@ int main()
             bodiesManager.AddSoftBody(CreateGround());
         }
         if (ImGui::Button("Add body"))
-        {
-
             bodiesManager.AddSoftBody(CreateSoftPolygon(rng() % 20));
-        }
+        if (ImGui::Button("Add car_soft_body.json"))
+            bodiesManager.AddSoftBody(LoadSoftBodyFromFile("car_soft_body.json"));
         if (ImGui::Button(cameraFollow ? "Camera !follow" : "Camera follow"))
             cameraFollow = !cameraFollow;
         ImGui::SliderInt("Substeps", &solverSubsteps, 1, 10);
