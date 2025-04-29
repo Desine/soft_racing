@@ -73,7 +73,7 @@ SoftBody CreateGround()
     SoftBody softBody;
 
     float spacing = 500.0f;
-    glm::vec2 origin(0.0f, -300.0f);
+    glm::vec2 origin(0.0f, -450.0f);
 
     softBody.pointMasses.positions = {
         origin + glm::vec2(-spacing, -spacing / 2),
@@ -137,7 +137,7 @@ int main()
     bool cameraFollow = false;
 
     float simulationSpeed = 10.f;
-    int solverSubsteps = 5;
+    int solverSubsteps = 10;
     int solverIterations = 3;
 
     std::random_device dev;
@@ -182,6 +182,46 @@ int main()
             physicsScene.softBodies.push_back(std::make_shared<SoftBody>(CreateSoftPolygon(rng() % 20)));
             physicsScene.softBodies.push_back(std::make_shared<SoftBody>(CreateGround()));
         }
+        if (ImGui::Button("Add car"))
+        {
+            Car car = LoadCarFromFile("car.json");
+
+            physicsScene.softBodies.push_back(car.body);
+            for (auto &wheel : car.wheels)
+                physicsScene.softBodies.push_back(wheel);
+            for (auto &joint : car.distanceJoints)
+                physicsScene.distanceJoints.push_back(joint);
+        }
+
+        if (ImGui::Button("Add wheel"))
+        {
+            glm::vec2 center = glm::vec2(0, 0);
+            float wheelRadius = 100;
+            float diskMass = 20;
+            float tireMass = 5;
+            float tireRatio = .4f;
+            float diskHubCompliance = .0f;
+            float diskRimCompliance = .0f;
+            float tireBodyCompliance = .0f;
+            float tireTreadCompliance = .0f;
+            float tirePressureCompliance = .0f;
+            float tirePressure = 1.f;
+            int radialSegments = 5;
+
+            physicsScene.softBodies.push_back(std::make_shared<SoftBody>(CreateWheel(
+                center,
+                wheelRadius,
+                diskMass,
+                tireMass,
+                tireRatio,
+                diskHubCompliance,
+                diskRimCompliance,
+                tireBodyCompliance,
+                tireTreadCompliance,
+                tirePressureCompliance,
+                tirePressure,
+                radialSegments)));
+        }
         if (ImGui::Button("Add body"))
         {
             physicsScene.softBodies.push_back(std::make_shared<SoftBody>(CreateSoftPolygon(rng() % 20)));
@@ -193,21 +233,21 @@ int main()
             for (auto &p : softBody2->pointMasses.positions)
                 p += glm::vec2(100.0f, 0.0f);
 
-            DistanceJoint distanceJoint;
-            distanceJoint.softBody1 = softBody1;
-            distanceJoint.softBody2 = softBody2;
-            distanceJoint.indices1.push_back(0);
-            distanceJoint.indices2.push_back(0);
-            distanceJoint.restDistances.push_back(100);
-            distanceJoint.compliances.push_back(0);
-            distanceJoint.lambdas.push_back(0);
-            physicsScene.distanceJoints.push_back(distanceJoint);
+            physicsScene.distanceJoints.push_back(std::make_shared<DistanceJoint>());
+            auto distanceJoint = physicsScene.distanceJoints[physicsScene.distanceJoints.size() - 1];
+            distanceJoint->softBody1 = softBody1;
+            distanceJoint->softBody2 = softBody2;
+            distanceJoint->indices1.push_back(0);
+            distanceJoint->indices2.push_back(0);
+            distanceJoint->restDistances.push_back(100);
+            distanceJoint->compliances.push_back(0);
+            distanceJoint->lambdas.push_back(0);
         }
-        if (ImGui::Button("Add car_soft_body.json"))
-            physicsScene.softBodies.push_back(std::make_shared<SoftBody>(LoadSoftBodyFromFile("car_soft_body.json")));
+        if (ImGui::Button("Add car_body.json"))
+            physicsScene.softBodies.push_back(std::make_shared<SoftBody>(LoadSoftBodyFromFile("car_body.json")));
         if (ImGui::Button(cameraFollow ? "Camera !follow" : "Camera follow"))
             cameraFollow = !cameraFollow;
-        ImGui::SliderInt("Substeps", &solverSubsteps, 1, 10);
+        ImGui::SliderInt("Substeps", &solverSubsteps, 1, 20);
         ImGui::SliderInt("Iterations", &solverIterations, 1, 10);
         ImGui::SliderFloat("Gravity Y", &physicsScene.gravity.y, -100.f, 100.f);
         ImGui::SliderFloat("Gravity X", &physicsScene.gravity.x, -100.f, 100.f);

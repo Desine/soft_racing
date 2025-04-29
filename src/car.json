@@ -1,0 +1,35 @@
+{
+  "bodyFile": "car_body.json",
+  "wheels": [
+    {
+      "position": [-30.0, -70.0],
+      "radius": 50.0,
+      "segments": 8,
+      "diskMass": 15.0,
+      "tireMass": 8.0,
+      "tireRatio": 0.6,
+      "diskHubCompliance": 0.0,
+      "diskRimCompliance": 0.00001,
+      "tireBodyCompliance": 0.001,
+      "tireTreadCompliance": 0.001,
+      "tirePressureCompliance": 0.0,
+      "tirePressure": 1.0,
+      "bodyIndices": [0, 1, 2]
+    },
+    {
+      "position": [150.0, -70.0],
+      "radius": 50.0,
+      "segments": 8,
+      "diskMass": 15.0,
+      "tireMass": 8.0,
+      "tireRatio": 0.6,
+      "diskHubCompliance": 0.0,
+      "diskRimCompliance": 0.00001,
+      "tireBodyCompliance": 0.001,
+      "tireTreadCompliance": 0.001,
+      "tirePressureCompliance": 0.0,
+      "tirePressure": 1.0,
+      "bodyIndices": [0, 1, 2]
+    }
+  ]
+}

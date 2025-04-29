@@ -64,7 +64,7 @@ float ComputePolygonArea(const std::vector<glm::vec2> &positions, const std::vec
     {
         const glm::vec2 &p0 = positions[indices[i]];
         const glm::vec2 &p1 = positions[indices[(i + 1) % N]];
-        area += Cross2D(p1, p0);
+        area += Cross2D(p0, p1);
     }
     return 0.5f * area;
 }

@@ -71,7 +71,7 @@ void SolveVolumeConstraints(PointMasses &pm, std::vector<VolumeConstraint> &cons
             if (w == 0.0f)
                 continue;
 
-            pm.positions[idx] -= w * deltaLambda * grads[i];
+            pm.positions[idx] += w * deltaLambda * grads[i];
         }
     }
 }

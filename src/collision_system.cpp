@@ -24,10 +24,7 @@ void DetectSoftSoftCollisions(
     std::vector<uint32_t> insideB;
     for (uint32_t index : bodyA.collisionPoints)
     {
-        const glm::vec2 &point = positionsA[index];
-        glm::vec2 rayDir(1.0f, 0.0f);
-
-        auto hits = RaycastAllIntersections(point, rayDir, bodyB);
+        auto hits = RaycastAllIntersections(positionsA[index], {1.0f, 0.0f}, bodyB);
         if (hits.size() % 2 == 1)
             insideB.push_back(index);
     }
@@ -37,8 +34,8 @@ void DetectSoftSoftCollisions(
         const glm::vec2 &pointA = positionsA[indexA];
         float minDist = std::numeric_limits<float>::max();
         uint32_t nearestEdge = 0;
-        int shapeSize = static_cast<int>(shapeB.size());
 
+        int shapeSize = shapeB.size();
         for (int i = 0; i < shapeSize; ++i)
         {
             const glm::vec2 &e1 = positionsB[shapeB[i]];
@@ -66,8 +63,8 @@ void DetectSoftSoftCollisions(
         constraint.softBodyA = &bodyA;
         constraint.softBodyB = &bodyB;
         constraint.pointIndex = indexA;
-        constraint.edgePointIndex0 = nearestEdge;
-        constraint.edgePointIndex1 = (nearestEdge + 1) % shapeB.size();
+        constraint.edgePointIndex0 = shapeB[nearestEdge];
+        constraint.edgePointIndex1 = shapeB[(nearestEdge + 1) % shapeB.size()];
         constraint.compliance = compliance;
         constraint.frictionStatic = frictionStatic,
         constraint.frictionKinetic = frictionKinetic,
@@ -144,11 +141,3 @@ void SolveSoftSoftCollisionConstraint(
         e1 += e1_w * deltaLambdaT * gradT_e1;
     }
 }
-
-// std::cout << "frictionStatic: " << constraint.frictionStatic << std::endl;
-// std::cout << "maxFrictionForce: " << maxFrictionForce << std::endl;
-// std::cout << "tangentialRelativeVelocity: " << tangentialRelativeVelocity << std::endl;
-// std::cout << "tangentialForce: " << tangentialForce << std::endl;
-// std::cout << "p x: " << p.x << " y: " << p.y << std::endl;
-// std::cout << "closestPoint x: " << closestPoint.x << " y: " << closestPoint.y << std::endl;
-// std::cout << "tangent x: " << tangent.x << " y: " << tangent.y << std::endl;

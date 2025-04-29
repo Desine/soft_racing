@@ -118,26 +118,26 @@ void Renderer::DrawSoftBodies(const std::vector<SoftBody> &softBodies)
 void Renderer::DrawSoftBody(const SoftBody &softBoby)
 {
     auto &positions = softBoby.pointMasses.positions;
-    auto &shape = softBoby.collisionPoints;
+    auto &shape = softBoby.collisionShape;
     int shape_n = softBoby.collisionShape.size();
 
     for (const DistanceConstraint &c : softBoby.distanceConstraints)
     {
-        const glm::vec2 &positionA = softBoby.pointMasses.positions[c.i1];
-        const glm::vec2 &positionB = softBoby.pointMasses.positions[c.i2];
+        glm::vec2 positionA = softBoby.pointMasses.positions[c.i1];
+        glm::vec2 positionB = softBoby.pointMasses.positions[c.i2];
+        DrawLine({positionA.x, positionA.y}, {positionB.x, positionB.y}, sf::Color::Cyan);
+    }
 
-        sf::Vertex line[] = {
-            sf::Vertex(sf::Vector2f(positionA.x, positionA.y), sf::Color::Cyan),
-            sf::Vertex(sf::Vector2f(positionB.x, positionB.y), sf::Color::Cyan)};
-        window->draw(line, 2, sf::Lines);
+    for (const auto c : softBoby.collisionPoints)
+    {
+        DrawCircle(positions[c], 1.5, sf::Color::White);
     }
 
     for (int i = 0; i < shape_n; ++i)
     {
-        sf::Vertex line[] = {
-            sf::Vertex(sf::Vector2f(positions[shape[i]].x, positions[shape[i]].y), sf::Color::White),
-            sf::Vertex(sf::Vector2f(positions[shape[(i + 1) % shape_n]].x, positions[shape[(i + 1) % shape_n]].y), sf::Color::White)};
-        window->draw(line, 2, sf::Lines);
+        glm::vec2 now = positions[shape[i]];
+        glm::vec2 next = positions[shape[(i + 1) % shape_n]];
+        DrawLine({now.x, now.y}, {next.x, next.y}, sf::Color::White);
     }
 }
 

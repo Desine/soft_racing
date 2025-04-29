@@ -4,6 +4,8 @@
 #include "json.hpp"
 #include <glm/glm.hpp>
 #include "soft_body.hpp"
+#include "shape_tools.hpp"
+#include "car.hpp"
 
 using json = nlohmann::json;
 
@@ -117,12 +119,81 @@ SoftBody LoadSoftBodyFromFile(const std::string &filename)
         }
     }
 
-    // center SoftBody on Vector2(0, 0);
-    glm::vec2 geometryCenter = ComputeGeometryCenter(softBody.pointMasses.positions);
-    for (auto &p : softBody.pointMasses.positions)
-        p -= geometryCenter;
-
     softBody.pointMasses.prevPositions = softBody.pointMasses.positions;
 
     return softBody;
+}
+
+Car LoadCarFromFile(const std::string &filename)
+{
+    std::ifstream file(filename);
+    if (!file.is_open())
+        throw std::runtime_error("Failed to open car file: " + filename);
+
+    json j;
+    file >> j;
+
+    Car car;
+
+    // Load body
+    std::shared_ptr<SoftBody> bodyPtr = std::make_shared<SoftBody>(LoadSoftBodyFromFile(j["bodyFile"]));
+    car.body = bodyPtr;
+
+    const auto &wheelDefs = j["wheels"];
+    for (const auto &w : wheelDefs)
+    {
+        glm::vec2 position(w["position"][0], w["position"][1]);
+        float radius = w.value("radius", 50);
+        float diskMass = w.value("diskMass", 10.0f);
+        float tireMass = w.value("tireMass", 5.0f);
+        float tireRatio = w.value("tireRatio", 0.5f);
+        float diskHubCompliance = w.value("diskHubCompliance", 0.0f);
+        float diskRimCompliance = w.value("diskRimCompliance", 0.0f);
+        float tireBodyCompliance = w.value("tireBodyCompliance", 0.001f);
+        float tireTreadCompliance = w.value("tireTreadCompliance", 0.001f);
+        float tirePressureCompliance = w.value("tirePressureCompliance", 0.0f);
+        float tirePressure = w.value("tirePressure", 1.0f);
+        int segments = w.value("segments", 3);
+
+        SoftBody wheel = CreateWheel(
+            position,
+            radius,
+            diskMass,
+            tireMass,
+            tireRatio,
+            diskHubCompliance,
+            diskRimCompliance,
+            tireBodyCompliance,
+            tireTreadCompliance,
+            tirePressureCompliance,
+            tirePressure,
+            segments);
+
+        std::shared_ptr<SoftBody> wheelPtr = std::make_shared<SoftBody>(std::move(wheel));
+        car.wheels.push_back(wheelPtr);
+
+        auto djPtr = std::make_shared<DistanceJoint>();
+        djPtr->softBody1 = wheelPtr;
+        djPtr->softBody2 = bodyPtr;
+        
+        const auto &bodyIndices = w["bodyIndices"];
+        for (const auto &i : bodyIndices)
+        {
+            uint32_t bodyIndex = i.get<uint32_t>();
+            djPtr->indices1.push_back(0);
+            djPtr->indices2.push_back(bodyIndex);
+
+            const glm::vec2 &p1 = wheelPtr->pointMasses.positions[0];
+            const glm::vec2 &p2 = bodyPtr->pointMasses.positions[bodyIndex];
+            float distance = glm::length(p1 - p2);
+            djPtr->restDistances.push_back(distance);
+
+            djPtr->compliances.push_back(0.0f);
+            djPtr->lambdas.push_back(0.0f);
+        }
+
+        car.distanceJoints.push_back(djPtr);
+    }
+
+    return car;
 }

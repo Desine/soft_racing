@@ -13,5 +13,5 @@ public:
 
     glm::vec2 gravity = glm::vec2(0.0f, 0.0f);
     std::vector<std::shared_ptr<SoftBody>> softBodies;
-    std::vector<DistanceJoint> distanceJoints;
+    std::vector<std::shared_ptr<DistanceJoint>> distanceJoints;
 };
