@@ -96,7 +96,7 @@ glm::vec2 ComputeMassCenter(const std::vector<glm::vec2> &positions, const std::
     return massCenter;
 }
 
-std::vector<RayHit> RaycastAllIntersections(const glm::vec2 &origin, const glm::vec2 &direction, const SoftBody &body)
+std::vector<RayHit> RaycastAllIntersections(const glm::vec2 &origin, const glm::vec2 &direction, SoftBody &body)
 {
     std::vector<RayHit> hits;
     const auto &shape = body.collisionShape;
@@ -129,7 +129,7 @@ std::vector<RayHit> RaycastAllIntersections(const glm::vec2 &origin, const glm::
     return hits;
 }
 
-std::optional<RayHit> RaycastFirstIntersection(const glm::vec2 &origin, const glm::vec2 &direction, const SoftBody &body)
+std::optional<RayHit> RaycastFirstIntersection(const glm::vec2 &origin, const glm::vec2 &direction, SoftBody &body)
 {
     auto hits = RaycastAllIntersections(origin, direction, body);
     if (hits.empty())

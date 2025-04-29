@@ -2,6 +2,7 @@
 #include <vector>
 #include "glm/glm.hpp"
 #include <optional>
+#include <memory>
 
 struct PointMasses
 {
@@ -78,5 +79,5 @@ float ComputePolygonArea(const std::vector<glm::vec2> &positions, const std::vec
 glm::vec2 ComputeGeometryCenter(const std::vector<glm::vec2> &positions);
 glm::vec2 ComputeMassCenter(const std::vector<glm::vec2> &positions, const std::vector<float> &inverseMasses);
 
-std::vector<RayHit> RaycastAllIntersections(const glm::vec2 &origin, const glm::vec2 &direction, const SoftBody &body);
-std::optional<RayHit> RaycastFirstIntersection(const glm::vec2 &origin, const glm::vec2 &direction, const SoftBody &body);
+std::vector<RayHit> RaycastAllIntersections(const glm::vec2 &origin, const glm::vec2 &direction, SoftBody &body);
+std::optional<RayHit> RaycastFirstIntersection(const glm::vec2 &origin, const glm::vec2 &direction, SoftBody &body);

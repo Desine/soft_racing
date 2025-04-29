@@ -3,8 +3,8 @@
 
 struct DistanceJoint
 {
-    SoftBody *softBody1 = nullptr;
-    SoftBody *softBody2 = nullptr;
+    std::weak_ptr<SoftBody> softBody1;
+    std::weak_ptr<SoftBody> softBody2;
     std::vector<uint32_t> indices1, indices2;
     std::vector<float> restDistances;
     std::vector<float> compliances;
@@ -12,7 +12,7 @@ struct DistanceJoint
 
     DistanceJoint() = default;
 
-    DistanceJoint(SoftBody *softBody1, SoftBody *softBody2)
+    DistanceJoint(std::weak_ptr<SoftBody> softBody1, std::weak_ptr<SoftBody> softBody2)
         : softBody1(softBody1), softBody2(softBody2) {}
 };
 

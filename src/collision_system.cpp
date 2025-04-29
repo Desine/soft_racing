@@ -7,8 +7,8 @@
 #include <iostream>
 
 void DetectSoftSoftCollisions(
-    const SoftBody &bodyA,
-    const SoftBody &bodyB,
+    SoftBody &bodyA,
+    SoftBody &bodyB,
     float compliance,
     float frictionStatic,
     float frictionKinetic,
@@ -63,8 +63,8 @@ void DetectSoftSoftCollisions(
         }
 
         SoftSoftCollisionConstraint constraint;
-        constraint.bodyA = const_cast<SoftBody *>(&bodyA);
-        constraint.bodyB = const_cast<SoftBody *>(&bodyB);
+        constraint.softBodyA = &bodyA;
+        constraint.softBodyB = &bodyB;
         constraint.pointIndex = indexA;
         constraint.edgePointIndex0 = nearestEdge;
         constraint.edgePointIndex1 = (nearestEdge + 1) % shapeB.size();
@@ -79,14 +79,14 @@ void SolveSoftSoftCollisionConstraint(
     SoftSoftCollisionConstraint &constraint,
     float dt)
 {
-    auto &p = constraint.bodyA->pointMasses.positions[constraint.pointIndex];
-    auto &p_prev = constraint.bodyA->pointMasses.prevPositions[constraint.pointIndex];
-    auto p_w = constraint.bodyA->pointMasses.inverseMasses[constraint.pointIndex];
+    auto &p = constraint.softBodyA->pointMasses.positions[constraint.pointIndex];
+    auto &p_prev = constraint.softBodyA->pointMasses.prevPositions[constraint.pointIndex];
+    auto p_w = constraint.softBodyA->pointMasses.inverseMasses[constraint.pointIndex];
 
-    auto &e0 = constraint.bodyB->pointMasses.positions[constraint.edgePointIndex0];
-    auto &e1 = constraint.bodyB->pointMasses.positions[constraint.edgePointIndex1];
-    auto e0_w = constraint.bodyB->pointMasses.inverseMasses[constraint.edgePointIndex0];
-    auto e1_w = constraint.bodyB->pointMasses.inverseMasses[constraint.edgePointIndex1];
+    auto &e0 = constraint.softBodyB->pointMasses.positions[constraint.edgePointIndex0];
+    auto &e1 = constraint.softBodyB->pointMasses.positions[constraint.edgePointIndex1];
+    auto e0_w = constraint.softBodyB->pointMasses.inverseMasses[constraint.edgePointIndex0];
+    auto e1_w = constraint.softBodyB->pointMasses.inverseMasses[constraint.edgePointIndex1];
 
     glm::vec2 edge = e1 - e0;
     float edgeLengthSq = glm::dot(edge, edge);

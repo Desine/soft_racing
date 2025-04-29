@@ -9,24 +9,24 @@
 
 void Simulate(PhysicsScene &physicsScene, float dt, int substeps, int iterations)
 {
-    std::vector<SoftBody> &softBodies = physicsScene.softBodies;
+    std::vector<std::shared_ptr<SoftBody>> &softBodies = physicsScene.softBodies;
     float substep_dt = dt / substeps;
 
     for (int step = 0; step < substeps; ++step)
     {
-        for (SoftBody &sb : softBodies)
+        for (auto &sbPtr : softBodies)
         {
-            Integrate(sb.pointMasses, substep_dt, physicsScene.gravity);
+            Integrate(sbPtr->pointMasses, substep_dt, physicsScene.gravity);
 
-            ResetConstrainsLambdas(sb);
+            ResetConstrainsLambdas(*sbPtr);
 
             for (int i = 0; i < iterations; ++i)
             {
-                SolveDistanceConstraints(sb.pointMasses, sb.distanceConstraints, substep_dt);
-                SolveVolumeConstraints(sb.pointMasses, sb.volumeConstraints, substep_dt);
-                SolveAngleConstraints(sb.pointMasses, sb.angleConstraints, substep_dt);
-                SolvePinConstraints(sb.pointMasses, sb.pinConstraints, substep_dt);
-                SolveShapeMatchingConstraints(sb.pointMasses, sb.shapeMatchingConstraints, substep_dt);
+                SolveDistanceConstraints(sbPtr->pointMasses, sbPtr->distanceConstraints, substep_dt);
+                SolveVolumeConstraints(sbPtr->pointMasses, sbPtr->volumeConstraints, substep_dt);
+                SolveAngleConstraints(sbPtr->pointMasses, sbPtr->angleConstraints, substep_dt);
+                SolvePinConstraints(sbPtr->pointMasses, sbPtr->pinConstraints, substep_dt);
+                SolveShapeMatchingConstraints(sbPtr->pointMasses, sbPtr->shapeMatchingConstraints, substep_dt);
             }
 
             // Renderer::DrawSoftBody(softBody);
@@ -45,20 +45,18 @@ void Simulate(PhysicsScene &physicsScene, float dt, int substeps, int iterations
             for (size_t j = i + 1; j < softBodies.size(); ++j)
             {
                 DetectSoftSoftCollisions(
-                    softBodies[i],
-                    softBodies[j],
-                    /*compliance=*/0.0001f,
+                    *softBodies[i],
+                    *softBodies[j],
+                    /*compliance=*/0.0f,
                     /*frictionStatic*/ 1.0f,
                     /*frictionKinetic*/ 0.3f,
-
                     collisionConstraints);
                 DetectSoftSoftCollisions(
-                    softBodies[j],
-                    softBodies[i],
-                    /*compliance=*/0.0001f,
+                    *softBodies[j],
+                    *softBodies[i],
+                    /*compliance=*/0.0f,
                     /*frictionStatic*/ 1.0f,
                     /*frictionKinetic*/ 0.3f,
-
                     collisionConstraints);
             }
         }
@@ -73,9 +71,9 @@ void Simulate(PhysicsScene &physicsScene, float dt, int substeps, int iterations
         }
 
         // update velocity
-        for (SoftBody &sb : softBodies)
+        for (auto &sbPtr : softBodies)
         {
-            UpdateVelocities(sb.pointMasses, substep_dt);
+            UpdateVelocities(sbPtr->pointMasses, substep_dt);
         }
     }
 }

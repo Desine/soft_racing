@@ -145,8 +145,8 @@ int main()
 
     PhysicsScene physicsScene;
     physicsScene.gravity = glm::vec2(0.0f, -9.8f);
-    physicsScene.softBodies.push_back(CreateSoftPolygon(rng() % 20));
-    physicsScene.softBodies.push_back(CreateGround());
+    physicsScene.softBodies.push_back(std::make_shared<SoftBody>(CreateSoftPolygon(rng() % 20)));
+    physicsScene.softBodies.push_back(std::make_shared<SoftBody>(CreateGround()));
 
     TickSystem tickSystem(30.0f);
     tickSystem.SetTimeScale(10.f);
@@ -158,6 +158,7 @@ int main()
     sf::Clock clock;
     while (window.isOpen())
     {
+        window.clear();
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -178,38 +179,32 @@ int main()
         if (ImGui::Button("Reset"))
         {
             physicsScene.Clear();
-            physicsScene.softBodies.push_back(CreateSoftPolygon(rng() % 20));
-            physicsScene.softBodies.push_back(CreateGround());
+            physicsScene.softBodies.push_back(std::make_shared<SoftBody>(CreateSoftPolygon(rng() % 20)));
+            physicsScene.softBodies.push_back(std::make_shared<SoftBody>(CreateGround()));
         }
         if (ImGui::Button("Add body"))
         {
-            physicsScene.softBodies.push_back(CreateSoftPolygon(rng() % 20));
-            physicsScene.softBodies.push_back(CreateSoftPolygon(rng() % 20));
+            physicsScene.softBodies.push_back(std::make_shared<SoftBody>(CreateSoftPolygon(rng() % 20)));
+            physicsScene.softBodies.push_back(std::make_shared<SoftBody>(CreateSoftPolygon(rng() % 20)));
 
-            SoftBody *softBody1 = &physicsScene.softBodies[physicsScene.softBodies.size() - 2];
-            SoftBody *softBody2 = &physicsScene.softBodies[physicsScene.softBodies.size() - 1];
+            auto softBody1 = physicsScene.softBodies[physicsScene.softBodies.size() - 2];
+            auto softBody2 = physicsScene.softBodies[physicsScene.softBodies.size() - 1];
 
-            std::cout << "softBody1 pointMasses size(): " << softBody1->pointMasses.positions.size() << std::endl;
-            std::cout << "softBody2 pointMasses size(): " << softBody2->pointMasses.positions.size() << std::endl;
             for (auto &p : softBody2->pointMasses.positions)
                 p += glm::vec2(100.0f, 0.0f);
-            if (!softBody1->pointMasses.positions.empty() && !softBody2->pointMasses.positions.empty())
-            {
-                DistanceJoint distanceJoint;
-                distanceJoint.softBody1 = softBody1;
-                distanceJoint.softBody2 = softBody2;
-                distanceJoint.indices1.push_back(0);
-                distanceJoint.indices2.push_back(0);
-                distanceJoint.restDistances.push_back(100);
-                distanceJoint.compliances.push_back(0);
-                distanceJoint.lambdas.push_back(0);
-                physicsScene.distanceJoints.push_back(distanceJoint);
-            }
-            else
-                std::cerr << "One of soft bodies is empty, cannot create joint!\n";
+
+            DistanceJoint distanceJoint;
+            distanceJoint.softBody1 = softBody1;
+            distanceJoint.softBody2 = softBody2;
+            distanceJoint.indices1.push_back(0);
+            distanceJoint.indices2.push_back(0);
+            distanceJoint.restDistances.push_back(100);
+            distanceJoint.compliances.push_back(0);
+            distanceJoint.lambdas.push_back(0);
+            physicsScene.distanceJoints.push_back(distanceJoint);
         }
         if (ImGui::Button("Add car_soft_body.json"))
-            physicsScene.softBodies.push_back(LoadSoftBodyFromFile("car_soft_body.json"));
+            physicsScene.softBodies.push_back(std::make_shared<SoftBody>(LoadSoftBodyFromFile("car_soft_body.json")));
         if (ImGui::Button(cameraFollow ? "Camera !follow" : "Camera follow"))
             cameraFollow = !cameraFollow;
         ImGui::SliderInt("Substeps", &solverSubsteps, 1, 10);
@@ -224,23 +219,23 @@ int main()
 
         while (tickSystem.Step())
         {
-            window.clear();
             Simulate(physicsScene, tickSystem.GetFixedDt(), solverSubsteps, solverIterations);
-
-            Renderer::DrawSoftBodies(physicsScene.softBodies);
         }
 
         // Draw
         if (cameraFollow)
         {
             sf::Vector2f cameraCenter;
-            glm::vec2 geometryCenter = ComputeGeometryCenter(physicsScene.softBodies[0].pointMasses.positions);
+            glm::vec2 geometryCenter = ComputeGeometryCenter(physicsScene.softBodies[0]->pointMasses.positions);
             cameraCenter.x = geometryCenter.x;
             cameraCenter.y = geometryCenter.y;
             view.setCenter(cameraCenter);
             window.setView(view);
             std::cout << "Camera center x: " << cameraCenter.x << " y: " << cameraCenter.y << std::endl;
         }
+
+        for (auto &sb : physicsScene.softBodies)
+            Renderer::DrawSoftBody(*sb);
 
         ImGui::SFML::Render(window);
         window.display();

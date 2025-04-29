@@ -4,8 +4,8 @@
 
 struct SoftSoftCollisionConstraint
 {
-    SoftBody *bodyA;
-    SoftBody *bodyB;
+    SoftBody *softBodyA;
+    SoftBody *softBodyB;
     uint32_t pointIndex;
     uint32_t edgePointIndex0;
     uint32_t edgePointIndex1;
@@ -17,8 +17,8 @@ struct SoftSoftCollisionConstraint
 };
 
 void DetectSoftSoftCollisions(
-    const SoftBody &bodyA,
-    const SoftBody &bodyB,
+    SoftBody &softBodyA,
+    SoftBody &softBodyB,
     float compliance,
     float frictionStatic,
     float frictionKinetic,

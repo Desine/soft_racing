@@ -41,9 +41,9 @@ void Renderer::DrawLevel(const Level &level, float carPositionX, float fov, floa
     window->draw(terrain);
 }
 
+/*
 void Renderer::DrawSoftBody(const SoftBody &softBody)
 {
-    /*
     // Draw points
     for (const auto &p : softBody.pointMasses)
     {
@@ -93,8 +93,8 @@ void Renderer::DrawSoftBody(const SoftBody &softBody)
 
                 window.draw(normalLine);
             }
-            */
-}
+        }
+*/
 
 void Renderer::DrawDistanceConstraints(PointMasses &pointMasses, std::vector<DistanceConstraint> &distanceConstraints)
 {
@@ -110,12 +110,12 @@ void Renderer::DrawDistanceConstraints(PointMasses &pointMasses, std::vector<Dis
     }
 }
 
-void Renderer::DrawSoftBodies(std::vector<SoftBody> &softBodies)
+void Renderer::DrawSoftBodies(const std::vector<SoftBody> &softBodies)
 {
-    for (SoftBody &s : softBodies)
-        DrawSoftBody(s);
+    for (auto &sb : softBodies)
+        DrawSoftBody(sb);
 }
-void Renderer::DrawSoftBody(SoftBody &softBoby)
+void Renderer::DrawSoftBody(const SoftBody &softBoby)
 {
     auto &positions = softBoby.pointMasses.positions;
     auto &shape = softBoby.collisionPoints;
@@ -123,8 +123,8 @@ void Renderer::DrawSoftBody(SoftBody &softBoby)
 
     for (const DistanceConstraint &c : softBoby.distanceConstraints)
     {
-        glm::vec2 &positionA = softBoby.pointMasses.positions[c.i1];
-        glm::vec2 &positionB = softBoby.pointMasses.positions[c.i2];
+        const glm::vec2 &positionA = softBoby.pointMasses.positions[c.i1];
+        const glm::vec2 &positionB = softBoby.pointMasses.positions[c.i2];
 
         sf::Vertex line[] = {
             sf::Vertex(sf::Vector2f(positionA.x, positionA.y), sf::Color::Cyan),
@@ -161,11 +161,11 @@ void Renderer::DrawLine(const glm::vec2 &from, const glm::vec2 &to, const sf::Co
 
 void Renderer::DrawSoftSoftPointEdgeCollision(const SoftSoftCollisionConstraint &constraint)
 {
-    const glm::vec2 &pA = constraint.bodyA->pointMasses.positions[constraint.pointIndex];
+    const glm::vec2 &pA = constraint.softBodyA->pointMasses.positions[constraint.pointIndex];
 
     DrawCircle(pA, 3.0f, sf::Color::Red);
 
-    const auto &posB = constraint.bodyB->pointMasses.positions;
+    const auto &posB = constraint.softBodyB->pointMasses.positions;
     glm::vec2 e1 = posB[constraint.edgePointIndex0];
     glm::vec2 e2 = posB[constraint.edgePointIndex1];
     DrawLine(e1, e2, sf::Color::Yellow);
