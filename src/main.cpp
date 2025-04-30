@@ -47,18 +47,18 @@ SoftBody CreateSoftPolygon(int segments)
     glm::vec2 centerMass = ComputeMassCenter(softBody.pointMasses.positions, softBody.pointMasses.inverseMasses);
     ShapeMatchingConstraint shapeMatchingConstraint;
     shapeMatchingConstraint.startCenterMass = centerMass;
-    shapeMatchingConstraint.compliance = 0.01f;
+    shapeMatchingConstraint.compliance = .8f;
     shapeMatchingConstraint.lambda = 0.0f;
     for (int i = 0; i < segments; ++i)
     {
         shapeMatchingConstraint.startPositions.push_back(softBody.pointMasses.positions[i]);
         shapeMatchingConstraint.indices.push_back(i);
     }
-    // softBody.shapeMatchingConstraints.push_back(shapeMatchingConstraint);
+    softBody.shapeMatchingConstraints.push_back(shapeMatchingConstraint);
 
-    PinConstraint pinConstraint;
-    pinConstraint.index = 0;
-    pinConstraint.targetPosition = glm::vec2(0.0f, 350.0f);
+    // PinConstraint pinConstraint;
+    // pinConstraint.index = 0;
+    // pinConstraint.targetPosition = glm::vec2(0.0f, 350.0f);
     // softBody.pinConstraints.push_back(pinConstraint);
 
     // testing
@@ -137,8 +137,8 @@ int main()
     bool cameraFollow = false;
 
     float simulationSpeed = 10.f;
-    int solverSubsteps = 10;
-    int solverIterations = 3;
+    int solverSubsteps = 20;
+    int solverIterations = 1;
 
     std::random_device dev;
     std::mt19937 rng(dev());
@@ -158,7 +158,6 @@ int main()
     sf::Clock clock;
     while (window.isOpen())
     {
-        window.clear();
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -182,7 +181,7 @@ int main()
             physicsScene.softBodies.push_back(std::make_shared<SoftBody>(CreateSoftPolygon(rng() % 20)));
             physicsScene.softBodies.push_back(std::make_shared<SoftBody>(CreateGround()));
         }
-        if (ImGui::Button("Add car"))
+        if (ImGui::Button("Add car.json"))
         {
             Car car = LoadCarFromFile("car.json");
 
@@ -247,7 +246,7 @@ int main()
             physicsScene.softBodies.push_back(std::make_shared<SoftBody>(LoadSoftBodyFromFile("car_body.json")));
         if (ImGui::Button(cameraFollow ? "Camera !follow" : "Camera follow"))
             cameraFollow = !cameraFollow;
-        ImGui::SliderInt("Substeps", &solverSubsteps, 1, 20);
+        ImGui::SliderInt("Substeps", &solverSubsteps, 1, 40);
         ImGui::SliderInt("Iterations", &solverIterations, 1, 10);
         ImGui::SliderFloat("Gravity Y", &physicsScene.gravity.y, -100.f, 100.f);
         ImGui::SliderFloat("Gravity X", &physicsScene.gravity.x, -100.f, 100.f);
@@ -259,6 +258,7 @@ int main()
 
         while (tickSystem.Step())
         {
+            window.clear();
             Simulate(physicsScene, tickSystem.GetFixedDt(), solverSubsteps, solverIterations);
         }
 

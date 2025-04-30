@@ -12,6 +12,7 @@ DistanceConstraint CreateDistanceConstraint(const std::vector<glm::vec2> &positi
     constraint.i2 = i2;
     constraint.restDistance = glm::distance(positions[i1], positions[i2]);
     constraint.compliance = compliance;
+    constraint.lambda = 0.0f;
     return constraint;
 }
 DistanceConstraint CreateDistanceConstraint(const std::vector<glm::vec2> &positions, uint32_t i1, uint32_t i2, float compliance, float restDistance)
@@ -26,8 +27,9 @@ AngleConstraint CreateAngleConstraint(const std::vector<glm::vec2> &positions, u
     constraint.i1 = i1;
     constraint.i2 = i2;
     constraint.i3 = i3;
-    constraint.compliance = compliance;
     constraint.restAngle = CalculateAngle(positions[i1], positions[i2], positions[i3]);
+    constraint.compliance = compliance;
+    constraint.lambda = 0.0f;
     return constraint;
 }
 

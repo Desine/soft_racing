@@ -50,7 +50,7 @@ SoftBody CreateWheel(
     }
 
     // tire
-    for (auto p : CreatePoigonPositions(radialSegments, wheelRadius, center, -rotate_angle))
+    for (auto p : CreatePoigonPositions(radialSegments, wheelRadius, center)) // , -rotate_angle
     {
         pm.positions.push_back(p);
         pm.prevPositions.push_back(p);
@@ -74,7 +74,10 @@ SoftBody CreateWheel(
         dc.push_back(CreateDistanceConstraint(pm.positions, diskStart + i, diskStart + next, diskRimCompliance));
         dc.push_back(CreateDistanceConstraint(pm.positions, tireStart + i, tireStart + next, tireTreadCompliance));
         dc.push_back(CreateDistanceConstraint(pm.positions, diskStart + i, tireStart + i, tireBodyCompliance));
-        dc.push_back(CreateDistanceConstraint(pm.positions, diskStart + i, tireStart + next, tireBodyCompliance));
+        // dc.push_back(CreateDistanceConstraint(pm.positions, diskStart + i, tireStart + next, tireBodyCompliance));
+
+        dc.push_back(CreateDistanceConstraint(pm.positions, diskStart + i, diskStart + ((i + radialSegments / 3) % radialSegments), diskRimCompliance));
+        dc.push_back(CreateDistanceConstraint(pm.positions, tireStart + i, tireStart + ((i + radialSegments / 3) % radialSegments), tireBodyCompliance));
 
         vc_disk.indices.push_back(diskStart + i);
         vc_tire.indices.push_back(tireStart + i);
@@ -82,20 +85,12 @@ SoftBody CreateWheel(
         wheel.collisionShape.push_back(tireStart + i);
     }
 
-    std::cout << std::endl;
-    for (auto &c : wheel.collisionShape)
-    {
-        std::cout << "wheel.collisionShape index: " << c << std::endl;
-    }
-
-
     vc_disk.restVolume = ComputePolygonArea(pm.positions, vc_disk.indices);
     vc_tire.compliance = tirePressureCompliance;
     vc_tire.restVolume = tirePressure * ComputePolygonArea(pm.positions, vc_tire.indices);
 
-    wheel.volumeConstraints.push_back(vc_disk);
     wheel.volumeConstraints.push_back(vc_tire);
-
+    
     return wheel;
 }
 

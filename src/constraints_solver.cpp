@@ -134,31 +134,27 @@ void SolvePinConstraints(PointMasses &pm, std::vector<PinConstraint> &constraint
         float alphaTilde = c.compliance / (dt * dt);
         float denom = wi + alphaTilde;
         float deltaLambda = (-C - alphaTilde * c.lambda) / denom;
-
         c.lambda += deltaLambda;
 
         xi += wi * deltaLambda * (-grad);
     }
 }
 
-// glm::mat2 ComputeOptimalRotation2D(const glm::mat2 &A)
-// {
-//     // Находим ближайшую матрицу вращения через полярное разложение
-//     glm::vec2 a0 = A[0];
-//     glm::vec2 a1 = A[1];
+glm::mat2 ComputeOptimalRotation2D(const glm::mat2 &A)
+{
+    float det = glm::determinant(A);
+    if (det <= 0.0f)
+        return glm::mat2(1.0f);
 
-//     glm::vec2 r0 = a0;
-//     glm::vec2 r1 = a1 - glm::dot(a1, r0) / glm::dot(r0, r0) * r0;
+    glm::vec2 col0 = A[0];
+    glm::vec2 col1 = A[1];
 
-//     r0 = glm::normalize(r0);
-//     r1 = glm::normalize(r1);
+    glm::vec2 u = glm::normalize(col0);
+    glm::vec2 v = col1 - glm::dot(col1, u) * u;
+    v = glm::normalize(v);
 
-//     glm::mat2 R;
-//     R[0] = r0;
-//     R[1] = glm::vec2(-r0.y, r0.x); // ортогональный вектор (в 2D достаточно этого)
-
-//     return R;
-// }
+    return glm::mat2(u, v);
+}
 
 void SolveShapeMatchingConstraints(PointMasses &pm,
                                    std::vector<ShapeMatchingConstraint> &constraints,
@@ -166,5 +162,60 @@ void SolveShapeMatchingConstraints(PointMasses &pm,
 {
     for (auto &c : constraints)
     {
+        const auto &indices = c.indices;
+
+        glm::vec2 currCenter(0.0f);
+        float totalMass = 0.0f;
+
+        for (auto i : indices)
+        {
+            float mass = 1.0f / pm.inverseMasses[i];
+            currCenter += pm.positions[i] * mass;
+            totalMass += mass;
+        }
+        currCenter /= totalMass;
+
+        glm::mat2 A(0.0f);
+        for (size_t k = 0; k < indices.size(); ++k)
+        {
+            uint32_t i = indices[k];
+            float mass = 1.0f / pm.inverseMasses[i];
+            glm::vec2 qi = c.startPositions[k] - c.startCenterMass;
+            glm::vec2 pi = pm.positions[i] - currCenter;
+            A += mass * glm::outerProduct(pi, qi);
+        }
+
+        glm::mat2 R = ComputeOptimalRotation2D(A);
+
+        std::vector<glm::vec2> goalPositions(indices.size());
+        for (size_t k = 0; k < indices.size(); ++k)
+        {
+            goalPositions[k] = R * (c.startPositions[k] - c.startCenterMass) + currCenter;
+
+            // Renderer::DrawCircle(goalPositions[k], 3.0f, sf::Color(0, 255, 0, 100));
+            // Renderer::DrawLine(pm.positions[indices[k]], goalPositions[k], sf::Color(255, 100, 100, 100));
+        }
+
+        float alphaTilde = c.compliance / (dt * dt);
+
+        for (size_t k = 0; k < indices.size(); ++k)
+        {
+            uint32_t i = indices[k];
+            float w = pm.inverseMasses[i];
+            if (w == 0.0f)
+                continue;
+
+            glm::vec2 delta = goalPositions[k] - pm.positions[i];
+            float C = glm::length(delta);
+            if (C < 1e-6f)
+                continue;
+
+            glm::vec2 gradC = glm::normalize(delta);
+            float denom = w + alphaTilde;
+            float deltaLambda = (-C - alphaTilde * c.lambda) / denom;
+            c.lambda += deltaLambda;
+
+            pm.positions[i] += deltaLambda * w * gradC;
+        }
     }
 }

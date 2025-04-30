@@ -32,3 +32,9 @@ inline float CalculateAngle(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3)
 
     return angle;
 }
+inline float OrientedAngle2D(const glm::vec2& a, const glm::vec2& b)
+{
+    float angle = glm::acos(glm::clamp(glm::dot(glm::normalize(a), glm::normalize(b)), -1.0f, 1.0f));
+    float cross = a.x * b.y - a.y * b.x;
+    return (cross < 0.0f) ? -angle : angle;
+}
