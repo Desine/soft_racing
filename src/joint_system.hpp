@@ -5,10 +5,10 @@
 struct DistanceJoint
 {
     std::weak_ptr<SoftBody> softBody1, softBody2;
-    std::vector<uint32_t> indices1, indices2;
-    std::vector<float> restDistances;
-    std::vector<float> compliances;
-    std::vector<float> lambdas;
+    uint32_t index1, index2;
+    float restDistance;
+    float compliance = 0.0f;
+    float lambda = 0.0f;
 
     DistanceJoint() = default;
 

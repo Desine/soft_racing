@@ -29,10 +29,8 @@ void SolveDistanceConstraints(PointMasses &pm, std::vector<DistanceConstraint> &
         float deltaLambda = (-C - alphaTilde * c.lambda) / denom;
         c.lambda += deltaLambda;
 
-        glm::vec2 corr = deltaLambda * grad;
-
-        p1 += w1 * corr;
-        p2 -= w2 * corr;
+        p1 += w1 * deltaLambda * grad;
+        p2 -= w2 * deltaLambda * grad;
     }
 }
 

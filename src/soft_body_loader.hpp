@@ -172,27 +172,25 @@ Car LoadCarFromFile(const std::string &filename)
         std::shared_ptr<SoftBody> wheelPtr = std::make_shared<SoftBody>(std::move(wheel));
         car.wheels.push_back(wheelPtr);
 
-        auto djPtr = std::make_shared<DistanceJoint>();
-        djPtr->softBody1 = wheelPtr;
-        djPtr->softBody2 = bodyPtr;
-        
         const auto &bodyIndices = w["bodyIndices"];
+        const auto &jointCompliance = w.value("jointCompliance", 0.0f);
         for (const auto &i : bodyIndices)
         {
+            auto djPtr = std::make_shared<DistanceJoint>();
+            djPtr->softBody1 = wheelPtr;
+            djPtr->softBody2 = bodyPtr;
             uint32_t bodyIndex = i.get<uint32_t>();
-            djPtr->indices1.push_back(0);
-            djPtr->indices2.push_back(bodyIndex);
+            djPtr->index1 = 0;
+            djPtr->index2 = bodyIndex;
 
             const glm::vec2 &p1 = wheelPtr->pointMasses.positions[0];
             const glm::vec2 &p2 = bodyPtr->pointMasses.positions[bodyIndex];
-            float distance = glm::length(p1 - p2);
-            djPtr->restDistances.push_back(distance);
-
-            djPtr->compliances.push_back(0.0f);
-            djPtr->lambdas.push_back(0.0f);
+            float restDistance = glm::length(p1 - p2);
+            djPtr->restDistance = restDistance;
+            djPtr->compliance = jointCompliance;
+            djPtr->lambda = 0.0f;
+            car.distanceJoints.push_back(djPtr);
         }
-
-        car.distanceJoints.push_back(djPtr);
     }
 
     return car;

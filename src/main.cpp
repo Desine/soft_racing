@@ -199,13 +199,13 @@ int main()
             float diskMass = 20;
             float tireMass = 5;
             float tireRatio = .4f;
-            float diskHubCompliance = .0f;
-            float diskRimCompliance = .0f;
-            float tireBodyCompliance = .0f;
-            float tireTreadCompliance = .0f;
+            float diskHubCompliance = .00001f;
+            float diskRimCompliance = .00001f;
+            float tireBodyCompliance = .001f;
+            float tireTreadCompliance = .001f;
             float tirePressureCompliance = .0f;
             float tirePressure = 1.f;
-            int radialSegments = 5;
+            int radialSegments = rng() % 20;
 
             physicsScene.softBodies.push_back(std::make_shared<SoftBody>(CreateWheel(
                 center,
@@ -236,11 +236,11 @@ int main()
             auto distanceJoint = physicsScene.distanceJoints[physicsScene.distanceJoints.size() - 1];
             distanceJoint->softBody1 = softBody1;
             distanceJoint->softBody2 = softBody2;
-            distanceJoint->indices1.push_back(0);
-            distanceJoint->indices2.push_back(0);
-            distanceJoint->restDistances.push_back(100);
-            distanceJoint->compliances.push_back(0);
-            distanceJoint->lambdas.push_back(0);
+            distanceJoint->index1 = 0;
+            distanceJoint->index2 = 0;
+            distanceJoint->restDistance = 100.0f;
+            distanceJoint->compliance=0.0f;
+            distanceJoint->lambda = 0.0f;
         }
         if (ImGui::Button("Add car_body.json"))
             physicsScene.softBodies.push_back(std::make_shared<SoftBody>(LoadSoftBodyFromFile("car_body.json")));

@@ -96,18 +96,42 @@ void Renderer::DrawSoftBody(const SoftBody &softBody)
         }
 */
 
+void Renderer::DrawDistanceConstraint(PointMasses &pointMasses, DistanceConstraint &distanceConstraint)
+{
+    glm::vec2 positionA = pointMasses.positions[distanceConstraint.i1];
+    glm::vec2 positionB = pointMasses.positions[distanceConstraint.i2];
+
+    sf::Vertex line[] = {
+        sf::Vertex(sf::Vector2f(positionA.x, positionA.y), sf::Color::White),
+        sf::Vertex(sf::Vector2f(positionB.x, positionB.y), sf::Color::White)};
+    window->draw(line, 2, sf::Lines);
+}
 void Renderer::DrawDistanceConstraints(PointMasses &pointMasses, std::vector<DistanceConstraint> &distanceConstraints)
 {
-    for (const DistanceConstraint &c : distanceConstraints)
-    {
-        glm::vec2 &positionA = pointMasses.positions[c.i1];
-        glm::vec2 &positionB = pointMasses.positions[c.i2];
+    for (auto &c : distanceConstraints)
+        DrawDistanceConstraint(pointMasses, c);
+}
 
-        sf::Vertex line[] = {
-            sf::Vertex(sf::Vector2f(positionA.x, positionA.y), sf::Color::White),
-            sf::Vertex(sf::Vector2f(positionB.x, positionB.y), sf::Color::White)};
-        window->draw(line, 2, sf::Lines);
-    }
+void Renderer::DrawDistanceJoint(DistanceJoint &distanceJoint)
+{
+    auto softBody1 = distanceJoint.softBody1.lock();
+    auto softBody2 = distanceJoint.softBody2.lock();
+
+    if (!softBody1 || !softBody2)
+        return;
+
+    glm::vec2 positionA = softBody1->pointMasses.positions[distanceJoint.index1];
+    glm::vec2 positionB = softBody2->pointMasses.positions[distanceJoint.index2];
+
+    sf::Vertex line[] = {
+        sf::Vertex(sf::Vector2f(positionA.x, positionA.y), sf::Color::Green),
+        sf::Vertex(sf::Vector2f(positionB.x, positionB.y), sf::Color::Green)};
+    window->draw(line, 2, sf::Lines);
+}
+void Renderer::DrawDistanceJoints(std::vector<std::shared_ptr<DistanceJoint>> &distanceJoints)
+{
+    for (auto &j : distanceJoints)
+        DrawDistanceJoint(*j);
 }
 
 void Renderer::DrawSoftBodies(const std::vector<SoftBody> &softBodies)
