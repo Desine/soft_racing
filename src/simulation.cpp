@@ -55,14 +55,14 @@ void Simulate(PhysicsScene &physicsScene, float dt, int substeps, int iterations
                 DetectSoftSoftCollisions(
                     *softBodies[i],
                     *softBodies[j],
-                    /*compliance=*/0.0f,
+                    /*compliance=*/0.0001f,
                     /*frictionStatic*/ 1.0f,
                     /*frictionKinetic*/ 0.3f,
                     collisionConstraints);
                 DetectSoftSoftCollisions(
                     *softBodies[j],
                     *softBodies[i],
-                    /*compliance=*/0.0f,
+                    /*compliance=*/0.0001f,
                     /*frictionStatic*/ 1.0f,
                     /*frictionKinetic*/ 0.3f,
                     collisionConstraints);

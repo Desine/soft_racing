@@ -40,14 +40,14 @@ SoftBody CreateWheel(
     pm.velocities.push_back({0.0f, 0.0f});
     pm.inverseMasses.push_back(1.0f / diskPointMass);
 
-    // disk
-    for (auto p : CreatePoigonPositions(radialSegments, diskRadius, center))
-    {
-        pm.positions.push_back(p);
-        pm.prevPositions.push_back(p);
-        pm.velocities.push_back({0.0f, 0.0f});
-        pm.inverseMasses.push_back(1.0f / diskPointMass);
-    }
+    // // disk
+    // for (auto p : CreatePoigonPositions(radialSegments, diskRadius, center))
+    // {
+    //     pm.positions.push_back(p);
+    //     pm.prevPositions.push_back(p);
+    //     pm.velocities.push_back({0.0f, 0.0f});
+    //     pm.inverseMasses.push_back(1.0f / diskPointMass);
+    // }
 
     // tire
     for (auto p : CreatePoigonPositions(radialSegments, wheelRadius, center)) // , -rotate_angle
@@ -58,7 +58,6 @@ SoftBody CreateWheel(
         pm.inverseMasses.push_back(1.0f / tirePointMass);
     }
 
-    VolumeConstraint vc_disk;
     VolumeConstraint vc_tire;
 
     std::vector<DistanceConstraint> &dc = wheel.distanceConstraints;
@@ -70,26 +69,33 @@ SoftBody CreateWheel(
     {
         int next = (i + 1) % radialSegments;
 
-        dc.push_back(CreateDistanceConstraint(pm.positions, 0, diskStart + i, diskHubCompliance));
-        dc.push_back(CreateDistanceConstraint(pm.positions, diskStart + i, diskStart + next, diskRimCompliance));
-        dc.push_back(CreateDistanceConstraint(pm.positions, tireStart + i, tireStart + next, tireTreadCompliance));
-        dc.push_back(CreateDistanceConstraint(pm.positions, diskStart + i, tireStart + ((i + radialSegments / 4) % radialSegments), tireBodyCompliance));
-        dc.push_back(CreateDistanceConstraint(pm.positions, tireStart + ((i + radialSegments * 3 / 4) % radialSegments), diskStart + i, tireBodyCompliance));
+        // dc.push_back(CreateDistanceConstraint(pm.positions, 0, diskStart + i, diskHubCompliance));
+        // dc.push_back(CreateDistanceConstraint(pm.positions, diskStart + i, diskStart + next, diskRimCompliance));
+        // dc.push_back(CreateDistanceConstraint(pm.positions, tireStart + i, tireStart + next, tireTreadCompliance));
+        // dc.push_back(CreateDistanceConstraint(pm.positions, diskStart + i, tireStart + ((i + radialSegments / 4) % radialSegments), tireBodyCompliance));
+        // dc.push_back(CreateDistanceConstraint(pm.positions, tireStart + ((i + radialSegments * 3 / 4) % radialSegments), diskStart + i, tireBodyCompliance));
 
-        dc.push_back(CreateDistanceConstraint(pm.positions, diskStart + i, diskStart + ((i + radialSegments / 3) % radialSegments), diskRimCompliance));
-        // dc.push_back(CreateDistanceConstraint(pm.positions, tireStart + i, tireStart + ((i + radialSegments / 3) % radialSegments), tireBodyCompliance));
+        // dc.push_back(CreateDistanceConstraint(pm.positions, diskStart + i, diskStart + ((i + radialSegments / 3) % radialSegments), diskRimCompliance));
+        // // dc.push_back(CreateDistanceConstraint(pm.positions, tireStart + i, tireStart + ((i + radialSegments / 3) % radialSegments), tireBodyCompliance));
 
-        vc_disk.indices.push_back(diskStart + i);
-        vc_tire.indices.push_back(tireStart + i);
-        wheel.collisionPoints.push_back(tireStart + i);
-        wheel.collisionShape.push_back(tireStart + i);
+        dc.push_back(CreateDistanceConstraint(pm.positions, 0, diskStart + i, tireBodyCompliance));
+        dc.push_back(CreateDistanceConstraint(pm.positions, diskStart + i, diskStart + ((i + radialSegments / 3) % radialSegments), tireBodyCompliance));
+        dc.push_back(CreateDistanceConstraint(pm.positions, diskStart + i, diskStart + next, tireTreadCompliance));
+
+
+        // vc_tire.indices.push_back(tireStart + i);
+        // wheel.collisionPoints.push_back(tireStart + i);
+        // wheel.collisionShape.push_back(tireStart + i);
+
+        vc_tire.indices.push_back(diskStart + i);
+        wheel.collisionPoints.push_back(diskStart + i);
+        wheel.collisionShape.push_back(diskStart + i);
     }
 
-    vc_disk.restVolume = ComputePolygonArea(pm.positions, vc_disk.indices);
     vc_tire.compliance = tirePressureCompliance;
     vc_tire.restVolume = tirePressure * ComputePolygonArea(pm.positions, vc_tire.indices);
 
-    wheel.volumeConstraints.push_back(vc_tire);
+    // wheel.volumeConstraints.push_back(vc_tire);
 
     return wheel;
 }

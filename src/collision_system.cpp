@@ -97,13 +97,13 @@ void SolveSoftSoftCollisionConstraint(
     float С = glm::length(n);
     if (С < 1e-6f)
         return;
-    n /= С; // Нормализуем вектор
+    n /= С;
 
     glm::vec2 grad_p = n;
     glm::vec2 grad_e0 = -n * (1.0f - t);
     glm::vec2 grad_e1 = -n * t;
 
-    float w_sum = p_w + e0_w + (1.0f - t) * (1.0f - t) + e1_w * t * t;
+    float w_sum = p_w + e0_w * (1.0f - t) * (1.0f - t) + e1_w * t * t;
     if (w_sum < 1e-6f)
         return;
 
@@ -115,29 +115,24 @@ void SolveSoftSoftCollisionConstraint(
     e0 += e0_w * deltaLambda * grad_e0;
     e1 += e1_w * deltaLambda * grad_e1;
 
-    // Friction
-    if (p_w < 1e-6f)
-        return;
+    // Static friction
+    glm::vec2 tangent = glm::vec2(-n.y, n.x);
+    glm::vec2 p_disp = p - p_prev;
 
-    glm::vec2 deltaPosition = p - p_prev;
-    glm::vec2 deltaPositionTangent = deltaPosition - glm::dot(deltaPosition, n) * n;
-    float C_tangent = glm::length(deltaPositionTangent);
+    glm::vec2 e0_prev = constraint.softBodyB->pointMasses.prevPositions[constraint.edgePointIndex0];
+    glm::vec2 e1_prev = constraint.softBodyB->pointMasses.prevPositions[constraint.edgePointIndex1];
+    glm::vec2 e0_disp = e0 - e0_prev;
+    glm::vec2 e1_disp = e1 - e1_prev;
 
-    if (C_tangent < 1e-6f)
-        return;
+    glm::vec2 e_disp = e0_disp * (1.0f - t) + e1_disp * t;
+    glm::vec2 relative_disp = p_disp - e_disp;
+    float tangential_disp = glm::dot(relative_disp, tangent);
 
-    float lambdaT = -C_tangent / p_w;
-    float deltaLambdaT = -C_tangent / w_sum;
+    float max_static_friction = constraint.frictionStatic * fabs(deltaLambda);
 
-    if (std::abs(lambdaT) < constraint.frictionStatic * std::abs(constraint.lambda))
-    {
-        glm::vec2 tangent = deltaPositionTangent / C_tangent;
-        glm::vec2 gradT_p = tangent;
-        glm::vec2 gradT_e0 = -tangent * (1.0f - t);
-        glm::vec2 gradT_e1 = -tangent * t;
+    float tangential_correction = glm::clamp(-tangential_disp, -max_static_friction, max_static_friction);
 
-        p += p_w * deltaLambdaT * gradT_p;
-        e0 += e0_w * deltaLambdaT * gradT_e0;
-        e1 += e1_w * deltaLambdaT * gradT_e1;
-    }
+    p += p_w / w_sum * tangential_correction * tangent;
+    e0 -= e0_w * (1.0f - t) / w_sum * tangential_correction * tangent;
+    e1 -= e1_w * t / w_sum * tangential_correction * tangent;
 }

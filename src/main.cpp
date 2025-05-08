@@ -37,8 +37,8 @@ SoftBody CreateSoftPolygon(int segments)
     softBody.pointMasses.velocities.resize(segments, glm::vec2(0.0f));
     softBody.pointMasses.inverseMasses.resize(segments, 1.0f / (mass / segments));
 
-    AddDistanceConstraintsToLoop(softBody, 1e-5f);
-    AddVolumeConstraintToLoop(softBody, 1e-4f);
+    AddDistanceConstraintsToLoop(softBody, 1e-4f);
+    AddVolumeConstraintToLoop(softBody, 1e-3f);
 
     AddCollisionPointsToLoop(softBody);
     AddCollisionShapeToLoop(softBody);
@@ -54,7 +54,7 @@ SoftBody CreateSoftPolygon(int segments)
         shapeMatchingConstraint.startPositions.push_back(softBody.pointMasses.positions[i]);
         shapeMatchingConstraint.indices.push_back(i);
     }
-    softBody.shapeMatchingConstraints.push_back(shapeMatchingConstraint);
+    // softBody.shapeMatchingConstraints.push_back(shapeMatchingConstraint);
 
     // PinConstraint pinConstraint;
     // pinConstraint.index = 0;
@@ -216,11 +216,11 @@ int main()
             float diskMass = 20;
             float tireMass = 5;
             float tireRatio = .4f;
-            float diskHubCompliance = .00001f;
-            float diskRimCompliance = .00001f;
+            float diskHubCompliance = .001f;
+            float diskRimCompliance = .001f;
             float tireBodyCompliance = .001f;
             float tireTreadCompliance = .001f;
-            float tirePressureCompliance = .0f;
+            float tirePressureCompliance = .001f;
             float tirePressure = 1.f;
             int radialSegments = rng() % 20;
 
@@ -276,17 +276,17 @@ int main()
             cameraFollow = !cameraFollow;
         ImGui::SliderInt("Substeps", &solverSubsteps, 1, 40);
         ImGui::SliderInt("Iterations", &solverIterations, 1, 10);
-        ImGui::SliderFloat("Gravity X", &physicsScene.gravity.x, -100.f, 100.f);
-        ImGui::SliderFloat("Gravity Y", &physicsScene.gravity.y, -100.f, 100.f);
+        ImGui::SliderFloat("Gravity X", &physicsScene.gravity.x, -30.f, 30.f);
+        ImGui::SliderFloat("Gravity Y", &physicsScene.gravity.y, -30.f, 30.f);
         if (carAccelerationConstraint)
         {
-            ImGui::SliderFloat("carAccelerationConstraint X", &carAccelerationConstraint->acceleration.x, -100.f, 100.f);
-            ImGui::SliderFloat("carAccelerationConstraint Y", &carAccelerationConstraint->acceleration.y, -100.f, 100.f);
+            ImGui::SliderFloat("carAccelerationConstraint X", &carAccelerationConstraint->acceleration.x, -30.f, 30.f);
+            ImGui::SliderFloat("carAccelerationConstraint Y", &carAccelerationConstraint->acceleration.y, -30.f, 30.f);
         }
         if (wheelAngularAccelerationConstraint)
         {
             wheelAngularAccelerationConstraint->position = ComputeGeometryCenter(car.wheels[0]->pointMasses.positions);
-            ImGui::SliderFloat("wheelAngularAccelerationConstraint", &wheelAngularAccelerationConstraint->acceleration, -100.f, 100.f);
+            ImGui::SliderFloat("wheelAngularAccelerationConstraint", &wheelAngularAccelerationConstraint->acceleration, -30.f, 30.f);
         }
         // if (!car.motorJoints.empty() && car.motorJoints[0])
         // ImGui::SliderFloat("targer angular velocity", &car.motorJoints[0]->targetAngularVelocity, -100.f, 100.f);
