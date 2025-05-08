@@ -191,6 +191,35 @@ Car LoadCarFromFile(const std::string &filename)
             djPtr->lambda = 0.0f;
             car.distanceJoints.push_back(djPtr);
         }
+
+        // if (w.contains("motor"))
+        // {
+        //     const auto &m = w["motor"];
+        //     auto mj = std::make_shared<MotorJoint>(wheelPtr, bodyPtr);
+
+        //     mj->targetAngularVelocity = m.value("targetAngularVelocity", 0.0f);
+        //     mj->torque = m.value("torque", 0.0f);
+        //     mj->compliance = m.value("compliance", 0.0f);
+        //     mj->lambda = 0.0f;
+
+        //     // Индексы точек на колесе — все или только некоторые
+        //     for (uint32_t i = 0; i < wheelPtr->pointMasses.positions.size(); ++i)
+        //         mj->indices1.push_back(i);
+
+        //     // Индексы точек тела (заданы в JSON как motor.bodyIndices)
+        //     if (m.contains("bodyIndices"))
+        //     {
+        //         for (const auto &i : m["bodyIndices"])
+        //             mj->indices2.push_back(i.get<uint32_t>());
+        //     }
+        //     else
+        //     {
+        //         for (uint32_t i = 0; i < bodyPtr->pointMasses.positions.size(); ++i)
+        //             mj->indices2.push_back(i);
+        //     }
+
+        //     car.motorJoints.push_back(mj);
+        // }
     }
 
     return car;

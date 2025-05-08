@@ -1,9 +1,9 @@
 #include "simulation.hpp"
-#include "integrator.hpp"
+#include "joint_system.hpp"
 #include "constraints_solver.hpp"
 #include "collision_system.hpp"
+#include "integrator.hpp"
 #include "renderer.hpp"
-#include "joint_system.hpp"
 
 #include <iostream>
 
@@ -22,6 +22,13 @@ void Simulate(PhysicsScene &physicsScene, float dt, int substeps, int iterations
 
             for (int i = 0; i < iterations; ++i)
             {
+                SolveAccelerationConstraints(sbPtr->pointMasses, sbPtr->accelerationConstraints, substep_dt / iterations);
+                SolveForceConstraints(sbPtr->pointMasses, sbPtr->forceConstraints, substep_dt / iterations);
+                SolveVelocityConstraints(sbPtr->pointMasses, sbPtr->VelocityConstraints, substep_dt / iterations);
+                SolveAngularAccelerationConstraints(sbPtr->pointMasses, sbPtr->angularAccelerationConstraints, substep_dt / iterations);
+                SolveAngularForceConstraints(sbPtr->pointMasses, sbPtr->angularForceConstraints, substep_dt / iterations);
+                SolveAngularVelocityConstraints(sbPtr->pointMasses, sbPtr->angularVelocityConstraints, substep_dt / iterations);
+
                 SolveDistanceConstraints(sbPtr->pointMasses, sbPtr->distanceConstraints, substep_dt);
                 SolveVolumeConstraints(sbPtr->pointMasses, sbPtr->volumeConstraints, substep_dt);
                 SolveAngleConstraints(sbPtr->pointMasses, sbPtr->angleConstraints, substep_dt);
@@ -32,10 +39,11 @@ void Simulate(PhysicsScene &physicsScene, float dt, int substeps, int iterations
             // Renderer::DrawSoftBody(softBody);
         }
 
-        ResetJointsLambdas(physicsScene.distanceJoints);
+        ResetJointsLambdas(physicsScene);
         for (int i = 0; i < iterations; ++i)
         {
             SolveDistanceJoints(physicsScene.distanceJoints, substep_dt);
+            SolveMotorJoints(physicsScene.motorJoints, substep_dt);
         }
 
         // detection collisions

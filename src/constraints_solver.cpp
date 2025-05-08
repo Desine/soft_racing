@@ -217,3 +217,117 @@ void SolveShapeMatchingConstraints(PointMasses &pm,
         }
     }
 }
+
+void SolveAccelerationConstraints(PointMasses &pm, std::vector<AccelerationConstraint> &constraints, float dt)
+{
+    for (auto &c : constraints)
+    {
+        for (auto idx : c.indices)
+        {
+            if (pm.inverseMasses[idx] == 0.0f)
+                continue;
+            glm::vec2 accel = c.acceleration;
+            pm.positions[idx] += accel * dt * dt;
+        }
+    }
+}
+
+void SolveForceConstraints(PointMasses &pm, std::vector<ForceConstraint> &constraints, float dt)
+{
+    for (auto &c : constraints)
+    {
+        for (auto idx : c.indices)
+        {
+            if (pm.inverseMasses[idx] == 0.0f)
+                continue;
+            glm::vec2 acceleration = c.force * pm.inverseMasses[idx];
+            pm.positions[idx] += acceleration * dt * dt;
+        }
+    }
+}
+
+void SolveVelocityConstraints(PointMasses &pm, std::vector<VelocityConstraint> &constraints, float dt)
+{
+    for (auto &c : constraints)
+    {
+        for (auto idx : c.indices)
+        {
+            if (pm.inverseMasses[idx] == 0.0f)
+                continue;
+            glm::vec2 desiredPos = pm.prevPositions[idx] + c.velocity * dt;
+            glm::vec2 correction = desiredPos - pm.positions[idx];
+            pm.positions[idx] += correction;
+        }
+    }
+}
+
+void SolveAngularAccelerationConstraints(PointMasses &pm, std::vector<AngularAccelerationConstraint> &constraints, float dt)
+{
+    for (auto &c : constraints)
+    {
+        for (auto idx : c.indices)
+        {
+            if (pm.inverseMasses[idx] == 0.0f)
+                continue;
+
+            float angle = 0.5f * c.acceleration * dt * dt;
+
+            glm::mat2 rotation = glm::mat2(
+                glm::cos(angle), -glm::sin(angle),
+                glm::sin(angle), glm::cos(angle));
+
+            glm::vec2 relativePos = pm.positions[idx] - c.position;
+            pm.positions[idx] = c.position + rotation * relativePos;
+        }
+    }
+}
+
+void SolveAngularForceConstraints(PointMasses &pm, std::vector<AngularForceConstraint> &constraints, float dt)
+{
+    for (auto &c : constraints)
+    {
+        for (auto idx : c.indices)
+        {
+            if (pm.inverseMasses[idx] == 0.0f)
+                continue;
+
+            glm::vec2 relativePos = pm.positions[idx] - c.position;
+            float r_len2 = glm::dot(relativePos, relativePos);
+            if (r_len2 == 0.0f)
+                continue;
+
+            float mass = 1.0f / pm.inverseMasses[idx];
+            float inertia = mass * r_len2;
+            float angularAccel = c.force / inertia;
+
+            float angle = 0.5f * angularAccel * dt * dt;
+
+            glm::mat2 rotation = glm::mat2(
+                glm::cos(angle), -glm::sin(angle),
+                glm::sin(angle), glm::cos(angle));
+
+            pm.positions[idx] = c.position + rotation * relativePos;
+        }
+    }
+}
+
+void SolveAngularVelocityConstraints(PointMasses &pm, std::vector<AngularVelocityConstraint> &constraints, float dt)
+{
+    for (auto &c : constraints)
+    {
+        for (auto idx : c.indices)
+        {
+            if (pm.inverseMasses[idx] == 0.0f)
+                continue;
+
+            float angle = c.velocity * dt;
+
+            glm::mat2 rotation = glm::mat2(
+                glm::cos(angle), -glm::sin(angle),
+                glm::sin(angle), glm::cos(angle));
+
+            glm::vec2 relativePos = pm.positions[idx] - c.position;
+            pm.positions[idx] = c.position + rotation * relativePos;
+        }
+    }
+}

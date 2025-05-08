@@ -3,4 +3,5 @@
 void PhysicsScene::Clear() {
     softBodies.clear();
     distanceJoints.clear();
+    motorJoints.clear();
 }

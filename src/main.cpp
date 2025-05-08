@@ -137,7 +137,7 @@ int main()
     bool cameraFollow = false;
 
     float simulationSpeed = 10.f;
-    int solverSubsteps = 20;
+    int solverSubsteps = 15;
     int solverIterations = 1;
 
     std::random_device dev;
@@ -156,6 +156,11 @@ int main()
     Renderer::SetWindow(&window);
 
     sf::Clock clock;
+
+    Car car;
+    AccelerationConstraint *carAccelerationConstraint = nullptr;
+    AngularAccelerationConstraint *wheelAngularAccelerationConstraint = nullptr;
+
     while (window.isOpen())
     {
         sf::Event event;
@@ -183,13 +188,25 @@ int main()
         }
         if (ImGui::Button("Add car.json"))
         {
-            Car car = LoadCarFromFile("car.json");
+            car = LoadCarFromFile("car.json");
+
+            AccelerationConstraint accelerationConstraint;
+            accelerationConstraint.indices = car.body.get()->collisionPoints;
+            car.body.get()->accelerationConstraints.push_back(accelerationConstraint);
+            carAccelerationConstraint = &car.body.get()->accelerationConstraints[0];
+
+            AngularAccelerationConstraint angularAccelerationConstraint;
+            angularAccelerationConstraint.indices = car.wheels[0]->collisionPoints;
+            car.wheels[0]->angularAccelerationConstraints.push_back(angularAccelerationConstraint);
+            wheelAngularAccelerationConstraint = &car.wheels[0].get()->angularAccelerationConstraints[0];
 
             physicsScene.softBodies.push_back(car.body);
             for (auto &wheel : car.wheels)
                 physicsScene.softBodies.push_back(wheel);
             for (auto &joint : car.distanceJoints)
                 physicsScene.distanceJoints.push_back(joint);
+            for (auto &joint : car.motorJoints)
+                physicsScene.motorJoints.push_back(joint);
         }
 
         if (ImGui::Button("Add wheel"))
@@ -238,9 +255,20 @@ int main()
             distanceJoint->softBody2 = softBody2;
             distanceJoint->index1 = 0;
             distanceJoint->index2 = 0;
-            distanceJoint->restDistance = 100.0f;
-            distanceJoint->compliance=0.0f;
-            distanceJoint->lambda = 0.0f;
+            distanceJoint->restDistance = 200.0f;
+
+            physicsScene.motorJoints.push_back(std::make_shared<MotorJoint>());
+            auto motorJoint = physicsScene.motorJoints[physicsScene.motorJoints.size() - 1];
+            motorJoint->softBody1 = softBody1;
+            motorJoint->softBody2 = softBody2;
+            motorJoint->anchorSoftBody = softBody1;
+            motorJoint->indices1 = softBody1->collisionPoints;
+            motorJoint->indices2 = softBody2->collisionPoints;
+            motorJoint->anchorIndices = softBody1->collisionPoints;
+            motorJoint->anchorStartPositions = softBody1->pointMasses.positions;
+            motorJoint->targetRPM = 1.0f;
+            motorJoint->torque = 10.0f;
+            motorJoint->compliance = 0.2f;
         }
         if (ImGui::Button("Add car_body.json"))
             physicsScene.softBodies.push_back(std::make_shared<SoftBody>(LoadSoftBodyFromFile("car_body.json")));
@@ -248,8 +276,20 @@ int main()
             cameraFollow = !cameraFollow;
         ImGui::SliderInt("Substeps", &solverSubsteps, 1, 40);
         ImGui::SliderInt("Iterations", &solverIterations, 1, 10);
-        ImGui::SliderFloat("Gravity Y", &physicsScene.gravity.y, -100.f, 100.f);
         ImGui::SliderFloat("Gravity X", &physicsScene.gravity.x, -100.f, 100.f);
+        ImGui::SliderFloat("Gravity Y", &physicsScene.gravity.y, -100.f, 100.f);
+        if (carAccelerationConstraint)
+        {
+            ImGui::SliderFloat("carAccelerationConstraint X", &carAccelerationConstraint->acceleration.x, -100.f, 100.f);
+            ImGui::SliderFloat("carAccelerationConstraint Y", &carAccelerationConstraint->acceleration.y, -100.f, 100.f);
+        }
+        if (wheelAngularAccelerationConstraint)
+        {
+            wheelAngularAccelerationConstraint->position = ComputeGeometryCenter(car.wheels[0]->pointMasses.positions);
+            ImGui::SliderFloat("wheelAngularAccelerationConstraint", &wheelAngularAccelerationConstraint->acceleration, -100.f, 100.f);
+        }
+        // if (!car.motorJoints.empty() && car.motorJoints[0])
+        // ImGui::SliderFloat("targer angular velocity", &car.motorJoints[0]->targetAngularVelocity, -100.f, 100.f);
         ImGui::End();
 
         // Simulate

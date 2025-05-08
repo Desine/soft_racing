@@ -34,9 +34,9 @@ struct AngleConstraint
 };
 struct ShapeMatchingConstraint
 {
-    std::vector<uint32_t> indices;         // of PointMasses.positions
-    std::vector<glm::vec2> startPositions; // of PointMasses.positions[indices]
-    glm::vec2 startCenterMass;             // of 1.0f / PointMasses.inverseMasses[indices]
+    std::vector<uint32_t> indices;
+    std::vector<glm::vec2> startPositions;
+    glm::vec2 startCenterMass;
     float compliance = 0.0f;
     float lambda = 0.0f;
 };
@@ -47,6 +47,40 @@ struct PinConstraint
     float compliance = 0.0f;
     float lambda = 0.0f;
 };
+struct AccelerationConstraint
+{
+    std::vector<uint32_t> indices;
+    glm::vec2 acceleration;
+};
+struct ForceConstraint
+{
+    std::vector<uint32_t> indices;
+    glm::vec2 force;
+};
+struct VelocityConstraint
+{
+    std::vector<uint32_t> indices;
+    glm::vec2 velocity;
+};
+struct AngularAccelerationConstraint
+{
+    std::vector<uint32_t> indices;
+    float acceleration;
+    glm::vec2 position;
+};
+struct AngularForceConstraint
+{
+    std::vector<uint32_t> indices;
+    float force;
+    glm::vec2 position;
+};
+struct AngularVelocityConstraint
+{
+    std::vector<uint32_t> indices;
+    float velocity;
+    glm::vec2 position;
+};
+
 
 struct SoftBody
 {
@@ -56,6 +90,13 @@ struct SoftBody
     std::vector<AngleConstraint> angleConstraints;
     std::vector<ShapeMatchingConstraint> shapeMatchingConstraints;
     std::vector<PinConstraint> pinConstraints;
+    
+    std::vector<AccelerationConstraint> accelerationConstraints;
+    std::vector<ForceConstraint> forceConstraints;
+    std::vector<VelocityConstraint> VelocityConstraints;
+    std::vector<AngularAccelerationConstraint> angularAccelerationConstraints;
+    std::vector<AngularForceConstraint> angularForceConstraints;
+    std::vector<AngularVelocityConstraint> angularVelocityConstraints;
     std::vector<uint32_t> collisionPoints;
     std::vector<uint32_t> collisionShape;
 };

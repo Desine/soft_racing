@@ -15,7 +15,13 @@
       "tirePressureCompliance": 0.0001,
       "tirePressure": 1.0,
       "bodyIndices": [0, 1],
-      "jointCompliance" : 0.0001
+      "jointCompliance": 0.0001,
+      "motor": {
+        "targetAngularVelocity": 100.0,
+        "torque": 1000.0,
+        "compliance": 0.0001,
+        "bodyIndices": [0, 1]
+      }
     },
     {
       "position": [170.0, -70.1],
@@ -31,7 +37,7 @@
       "tirePressureCompliance": 0.0001,
       "tirePressure": 1.0,
       "bodyIndices": [1, 2],
-      "jointCompliance" : 0.0001
+      "jointCompliance": 0.0001
     }
   ]
 }

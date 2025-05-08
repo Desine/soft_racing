@@ -9,4 +9,5 @@ public:
     std::shared_ptr<SoftBody> body;
     std::vector<std::shared_ptr<SoftBody>> wheels;
     std::vector<std::shared_ptr<DistanceJoint>> distanceJoints;
+    std::vector<std::shared_ptr<MotorJoint>> motorJoints;
 };
