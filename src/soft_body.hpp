@@ -122,3 +122,5 @@ glm::vec2 ComputeMassCenter(const std::vector<glm::vec2> &positions, const std::
 
 std::vector<RayHit> RaycastAllIntersections(const glm::vec2 &origin, const glm::vec2 &direction, SoftBody &body);
 std::optional<RayHit> RaycastFirstIntersection(const glm::vec2 &origin, const glm::vec2 &direction, SoftBody &body);
+
+bool PointInPolygon(const glm::vec2 point, const std::vector<glm::vec2> positions);

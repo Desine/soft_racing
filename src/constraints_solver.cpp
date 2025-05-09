@@ -26,6 +26,8 @@ void SolveDistanceConstraints(PointMasses &pm, std::vector<DistanceConstraint> &
 
         float alphaTilde = c.compliance / (dt * dt);
         float denom = w1 + w2 + alphaTilde;
+        if (denom < 1e-6f)
+            continue;
         float deltaLambda = (-C - alphaTilde * c.lambda) / denom;
         c.lambda += deltaLambda;
 
@@ -44,7 +46,6 @@ void SolveVolumeConstraints(PointMasses &pm, std::vector<VolumeConstraint> &cons
         float volume = ComputePolygonArea(pm.positions, c.indices);
         float C = volume - c.restVolume;
 
-        float alphaTilde = c.compliance / (dt * dt);
         float denom = 0.0f;
         std::vector<glm::vec2> grads(N);
 
@@ -58,7 +59,10 @@ void SolveVolumeConstraints(PointMasses &pm, std::vector<VolumeConstraint> &cons
             denom += pm.inverseMasses[indices[i]] * glm::dot(grad, grad);
         }
 
+        float alphaTilde = c.compliance / (dt * dt);
         denom += alphaTilde;
+        if (denom < 1e-6f)
+            continue;
         float deltaLambda = (-C - alphaTilde * c.lambda) / denom;
         c.lambda += deltaLambda;
 

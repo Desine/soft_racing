@@ -143,3 +143,27 @@ std::optional<RayHit> RaycastFirstIntersection(const glm::vec2 &origin, const gl
                                  return a.distance < b.distance;
                              });
 }
+
+
+
+bool PointInPolygon(const glm::vec2 point, const std::vector<glm::vec2> positions)
+{
+    int windingNumber = 0;
+    size_t n = positions.size();
+    for (size_t i = 0; i < n; ++i)
+    {
+        const glm::vec2 &v1 = positions[i];
+        const glm::vec2 &v2 = positions[(i + 1) % n];
+        if (v1.y <= point.y)
+        {
+            if (v2.y > point.y && Cross2D(v2 - v1, point - v1) > 0)
+                ++windingNumber;
+        }
+        else
+        {
+            if (v2.y <= point.y && Cross2D(v2 - v1, point - v1) < 0)
+                --windingNumber;
+        }
+    }
+    return windingNumber != 0;
+}

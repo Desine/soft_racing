@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <iostream>
 
+
 void DetectSoftSoftCollisions(
     SoftBody &bodyA,
     SoftBody &bodyB,
@@ -24,8 +25,7 @@ void DetectSoftSoftCollisions(
     std::vector<uint32_t> insideB;
     for (uint32_t index : bodyA.collisionPoints)
     {
-        auto hits = RaycastAllIntersections(positionsA[index], {1.0f, 0.0f}, bodyB);
-        if (hits.size() % 2 == 1)
+        if (PointInPolygon(positionsA[index], positionsB))
             insideB.push_back(index);
     }
 
@@ -66,11 +66,12 @@ void DetectSoftSoftCollisions(
         constraint.edgePointIndex0 = shapeB[nearestEdge];
         constraint.edgePointIndex1 = shapeB[(nearestEdge + 1) % shapeB.size()];
         constraint.compliance = compliance;
-        constraint.frictionStatic = frictionStatic,
-        constraint.frictionKinetic = frictionKinetic,
+        constraint.frictionStatic = frictionStatic;
+        constraint.frictionKinetic = frictionKinetic;
         outConstraints.push_back(constraint);
     }
 }
+
 
 void SolveSoftSoftCollisionConstraint(
     SoftSoftCollisionConstraint &constraint,

@@ -276,8 +276,11 @@ int main()
             cameraFollow = !cameraFollow;
         ImGui::SliderInt("Substeps", &solverSubsteps, 1, 40);
         ImGui::SliderInt("Iterations", &solverIterations, 1, 10);
-        ImGui::SliderFloat("Gravity X", &physicsScene.gravity.x, -30.f, 30.f);
-        ImGui::SliderFloat("Gravity Y", &physicsScene.gravity.y, -30.f, 30.f);
+        ImGui::SliderFloat("Gravity X", &physicsScene.gravity.x, -20.f, 20.f);
+        ImGui::SliderFloat("Gravity Y", &physicsScene.gravity.y, -20.f, 20.f);
+        if (ImGui::Button("Gravity Y = 0"))
+            physicsScene.gravity.y = 0;
+
         if (carAccelerationConstraint)
         {
             ImGui::SliderFloat("carAccelerationConstraint X", &carAccelerationConstraint->acceleration.x, -30.f, 30.f);
