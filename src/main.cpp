@@ -137,7 +137,7 @@ int main()
     bool cameraFollow = false;
 
     float simulationSpeed = 10.f;
-    int solverSubsteps = 15;
+    int solverSubsteps = 20;
     int solverIterations = 1;
 
     std::random_device dev;
@@ -159,6 +159,7 @@ int main()
 
     Car car;
     AccelerationConstraint *carAccelerationConstraint = nullptr;
+    AngularAccelerationConstraint *carAngularAccelerationConstraint = nullptr;
     AngularAccelerationConstraint *wheelAngularAccelerationConstraint = nullptr;
 
     while (window.isOpen())
@@ -170,6 +171,42 @@ int main()
 
             if (event.type == sf::Event::Closed)
                 window.close();
+        }
+
+        // control
+        if (carAccelerationConstraint)
+        {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+                carAccelerationConstraint->acceleration.y = 20;
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+                carAccelerationConstraint->acceleration.y = -10;
+            else
+                carAccelerationConstraint->acceleration.y = 0;
+
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
+                carAccelerationConstraint->acceleration.x = -10;
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
+                carAccelerationConstraint->acceleration.x = 10;
+            else
+                carAccelerationConstraint->acceleration.x = 0;
+        }
+        if (carAngularAccelerationConstraint)
+        {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+                carAngularAccelerationConstraint->acceleration = 0.3f;
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+                carAngularAccelerationConstraint->acceleration = -0.3f;
+            else
+                carAngularAccelerationConstraint->acceleration = 0;
+        }
+        if (wheelAngularAccelerationConstraint)
+        {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
+                wheelAngularAccelerationConstraint->acceleration = 20;
+            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
+                wheelAngularAccelerationConstraint->acceleration = -20;
+            else
+                wheelAngularAccelerationConstraint->acceleration = 0;
         }
 
         // GUI
@@ -190,14 +227,19 @@ int main()
         {
             car = LoadCarFromFile("car.json");
 
-            AccelerationConstraint accelerationConstraint;
-            accelerationConstraint.indices = car.body.get()->collisionPoints;
-            car.body.get()->accelerationConstraints.push_back(accelerationConstraint);
+            AccelerationConstraint carAC;
+            carAC.indices = car.body.get()->collisionPoints;
+            car.body.get()->accelerationConstraints.push_back(carAC);
             carAccelerationConstraint = &car.body.get()->accelerationConstraints[0];
 
-            AngularAccelerationConstraint angularAccelerationConstraint;
-            angularAccelerationConstraint.indices = car.wheels[0]->collisionPoints;
-            car.wheels[0]->angularAccelerationConstraints.push_back(angularAccelerationConstraint);
+            AngularAccelerationConstraint carAAC;
+            carAAC.indices = car.body->collisionPoints;
+            car.body->angularAccelerationConstraints.push_back(carAAC);
+            carAngularAccelerationConstraint = &car.body.get()->angularAccelerationConstraints[0];
+
+            AngularAccelerationConstraint wheelAAC;
+            wheelAAC.indices = car.wheels[0]->collisionPoints;
+            car.wheels[0]->angularAccelerationConstraints.push_back(wheelAAC);
             wheelAngularAccelerationConstraint = &car.wheels[0].get()->angularAccelerationConstraints[0];
 
             physicsScene.softBodies.push_back(car.body);
@@ -278,21 +320,13 @@ int main()
         ImGui::SliderInt("Iterations", &solverIterations, 1, 10);
         ImGui::SliderFloat("Gravity X", &physicsScene.gravity.x, -20.f, 20.f);
         ImGui::SliderFloat("Gravity Y", &physicsScene.gravity.y, -20.f, 20.f);
-        if (ImGui::Button("Gravity Y = 0"))
-            physicsScene.gravity.y = 0;
+        if (ImGui::Button("Gravity zedo"))
+            physicsScene.gravity = {0.0f, 0.0f};
 
-        if (carAccelerationConstraint)
-        {
-            ImGui::SliderFloat("carAccelerationConstraint X", &carAccelerationConstraint->acceleration.x, -30.f, 30.f);
-            ImGui::SliderFloat("carAccelerationConstraint Y", &carAccelerationConstraint->acceleration.y, -30.f, 30.f);
-        }
+        if (carAngularAccelerationConstraint)
+            carAngularAccelerationConstraint->position = ComputeMassCenter(car.body->pointMasses.positions, car.body->pointMasses.inverseMasses);
         if (wheelAngularAccelerationConstraint)
-        {
             wheelAngularAccelerationConstraint->position = ComputeGeometryCenter(car.wheels[0]->pointMasses.positions);
-            ImGui::SliderFloat("wheelAngularAccelerationConstraint", &wheelAngularAccelerationConstraint->acceleration, -30.f, 30.f);
-        }
-        // if (!car.motorJoints.empty() && car.motorJoints[0])
-        // ImGui::SliderFloat("targer angular velocity", &car.motorJoints[0]->targetAngularVelocity, -100.f, 100.f);
         ImGui::End();
 
         // Simulate

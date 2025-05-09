@@ -74,7 +74,7 @@ void Simulate(PhysicsScene &physicsScene, float dt, int substeps, int iterations
         // solve collisions
         for (auto &cc : collisionConstraints)
         {
-            Renderer::DrawSoftSoftPointEdgeCollision(cc);
+            // Renderer::DrawSoftSoftPointEdgeCollision(cc);
 
             for (int i = 0; i < iterations; ++i)
                 SolveSoftSoftCollisionConstraint(cc, substep_dt);
