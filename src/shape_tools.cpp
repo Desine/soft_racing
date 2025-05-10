@@ -79,9 +79,8 @@ SoftBody CreateWheel(
         // // dc.push_back(CreateDistanceConstraint(pm.positions, tireStart + i, tireStart + ((i + radialSegments / 3) % radialSegments), tireBodyCompliance));
 
         dc.push_back(CreateDistanceConstraint(pm.positions, 0, diskStart + i, tireBodyCompliance));
-        dc.push_back(CreateDistanceConstraint(pm.positions, diskStart + i, diskStart + ((i + radialSegments / 3) % radialSegments), tireBodyCompliance));
         dc.push_back(CreateDistanceConstraint(pm.positions, diskStart + i, diskStart + next, tireTreadCompliance));
-
+        dc.push_back(CreateDistanceConstraint(pm.positions, diskStart + i, diskStart + ((i + radialSegments / 3) % radialSegments), tireBodyCompliance));
 
         // vc_tire.indices.push_back(tireStart + i);
         // wheel.collisionPoints.push_back(tireStart + i);
@@ -95,7 +94,7 @@ SoftBody CreateWheel(
     vc_tire.compliance = tirePressureCompliance;
     vc_tire.restVolume = tirePressure * ComputePolygonArea(pm.positions, vc_tire.indices);
 
-    // wheel.volumeConstraints.push_back(vc_tire);
+    wheel.volumeConstraints.push_back(vc_tire);
 
     return wheel;
 }

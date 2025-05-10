@@ -86,5 +86,4 @@ void Simulate(PhysicsScene &physicsScene, float dt, int substeps, int iterations
             UpdateVelocities(sbPtr->pointMasses, substep_dt);
         }
     }
-    Renderer::DrawDistanceJoints(physicsScene.distanceJoints);
 }

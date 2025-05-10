@@ -73,19 +73,112 @@ SoftBody CreateGround()
     SoftBody softBody;
 
     float spacing = 500.0f;
-    glm::vec2 origin(0.0f, -450.0f);
+    glm::vec2 origin(0.0f, -500.0f);
 
     softBody.pointMasses.positions = {
-        origin + glm::vec2(-spacing, -spacing / 2),
-        origin + glm::vec2(-spacing, spacing / 4),
+        origin + glm::vec2(-10000, -1500),
+        origin + glm::vec2(-9800, 450),
+        origin + glm::vec2(-9600, 470),
+        origin + glm::vec2(-9400, 430),
+        origin + glm::vec2(-9200, 400),
+        origin + glm::vec2(-9000, 420),
+        origin + glm::vec2(-8800, 380),
+        origin + glm::vec2(-8600, 360),
+        origin + glm::vec2(-8400, 380),
+        origin + glm::vec2(-8200, 340),
+        origin + glm::vec2(-8000, 320),
+        origin + glm::vec2(-7800, 340),
+        origin + glm::vec2(-7600, 300),
+        origin + glm::vec2(-7400, 280),
+        origin + glm::vec2(-7200, 300),
+        origin + glm::vec2(-7000, 500),
+        origin + glm::vec2(-6800, 400),
+        origin + glm::vec2(-6600, 450),
+        origin + glm::vec2(-6400, 350),
+        origin + glm::vec2(-6200, 300),
+        origin + glm::vec2(-6000, 350),
+        origin + glm::vec2(-5800, 250),
+        origin + glm::vec2(-5600, 200),
+        origin + glm::vec2(-5400, 220),
+        origin + glm::vec2(-5200, 180),
+        origin + glm::vec2(-5000, -1500),
+        origin + glm::vec2(-4800, 450),
+        origin + glm::vec2(-4600, 470),
+        origin + glm::vec2(-4400, 430),
+        origin + glm::vec2(-4200, 400),
+        origin + glm::vec2(-4000, 420),
+        origin + glm::vec2(-3800, 380),
+        origin + glm::vec2(-3600, 360),
+        origin + glm::vec2(-3400, 380),
+        origin + glm::vec2(-3200, 340),
+        origin + glm::vec2(-3000, 320),
+        origin + glm::vec2(-2800, 340),
+        origin + glm::vec2(-2600, 300),
+        origin + glm::vec2(-2400, 280),
+        origin + glm::vec2(-2200, 300),
+        origin + glm::vec2(-2000, 500),
+        origin + glm::vec2(-1800, 400),
+        origin + glm::vec2(-1600, 450),
+        origin + glm::vec2(-1400, 350),
+        origin + glm::vec2(-1200, 300),
+        origin + glm::vec2(-1000, 350),
+        origin + glm::vec2(-800, 250),
+        origin + glm::vec2(-600, 200),
+        origin + glm::vec2(-400, 220),
+        origin + glm::vec2(-200, 180),
+        origin + glm::vec2(0, 150),
+        origin + glm::vec2(200, 170),
+        origin + glm::vec2(400, 120),
+        origin + glm::vec2(600, 100),
+        origin + glm::vec2(800, 130),
+        origin + glm::vec2(1000, 90),
+        origin + glm::vec2(1200, 70),
+        origin + glm::vec2(1400, 100),
+        origin + glm::vec2(1600, 60),
+        origin + glm::vec2(1800, 40),
+        origin + glm::vec2(2000, 60),
+        origin + glm::vec2(2200, 20),
+        origin + glm::vec2(2400, 0),
+        origin + glm::vec2(2600, 30),
+        origin + glm::vec2(2800, -10),
+        origin + glm::vec2(3000, -30),
+        origin + glm::vec2(3200, 0),
+        origin + glm::vec2(3400, -40),
+        origin + glm::vec2(3600, -60),
+        origin + glm::vec2(3800, -30),
+        origin + glm::vec2(4000, 0),
+        origin + glm::vec2(4200, 30),
+        origin + glm::vec2(4400, 60),
+        origin + glm::vec2(4600, 100),
+        origin + glm::vec2(4800, 200),
+        origin + glm::vec2(5000, -1500),
+        origin + glm::vec2(5200, 200),
+        origin + glm::vec2(5400, 220),
+        origin + glm::vec2(5600, 180),
+        origin + glm::vec2(5800, 150),
+        origin + glm::vec2(6000, 170),
+        origin + glm::vec2(6200, 130),
+        origin + glm::vec2(6400, 110),
+        origin + glm::vec2(6600, 130),
+        origin + glm::vec2(6800, 90),
+        origin + glm::vec2(7000, 70),
+        origin + glm::vec2(7200, 90),
+        origin + glm::vec2(7400, 50),
+        origin + glm::vec2(7600, 30),
+        origin + glm::vec2(7800, 50),
+        origin + glm::vec2(8000, 250),
+        origin + glm::vec2(8200, 150),
+        origin + glm::vec2(8400, 200),
+        origin + glm::vec2(8600, 100),
+        origin + glm::vec2(8800, 50),
+        origin + glm::vec2(9000, 100),
+        origin + glm::vec2(9200, 0),
+        origin + glm::vec2(9400, -50),
+        origin + glm::vec2(9600, -30),
+        origin + glm::vec2(9800, -70),
+        origin + glm::vec2(10000, -1500),
+    };
 
-        origin + glm::vec2(-spacing * .7f, spacing),
-        origin + glm::vec2(-spacing * .7f, spacing / 10),
-        origin + glm::vec2(spacing * .7f, spacing / 10),
-        origin + glm::vec2(spacing * .7f, spacing),
-
-        origin + glm::vec2(spacing, spacing / 4),
-        origin + glm::vec2(spacing, -spacing / 2)};
     int pointCount = softBody.pointMasses.positions.size();
 
     softBody.pointMasses.prevPositions = softBody.pointMasses.positions;
@@ -219,6 +312,9 @@ int main()
             window.close();
         if (ImGui::Button("Reset"))
         {
+            view.setCenter({0.0f, 0.0f});
+            window.setView(view);
+
             physicsScene.Clear();
             physicsScene.softBodies.push_back(std::make_shared<SoftBody>(CreateSoftPolygon(rng() % 20)));
             physicsScene.softBodies.push_back(std::make_shared<SoftBody>(CreateGround()));
@@ -340,19 +436,20 @@ int main()
         }
 
         // Draw
-        if (cameraFollow)
+        if (cameraFollow && car.body)
         {
             sf::Vector2f cameraCenter;
-            glm::vec2 geometryCenter = ComputeGeometryCenter(physicsScene.softBodies[0]->pointMasses.positions);
+            glm::vec2 geometryCenter = ComputeGeometryCenter(car.body->pointMasses.positions);
             cameraCenter.x = geometryCenter.x;
             cameraCenter.y = geometryCenter.y;
             view.setCenter(cameraCenter);
             window.setView(view);
-            std::cout << "Camera center x: " << cameraCenter.x << " y: " << cameraCenter.y << std::endl;
         }
 
         for (auto &sb : physicsScene.softBodies)
             Renderer::DrawSoftBody(*sb);
+        for (auto &dj : physicsScene.distanceJoints)
+            Renderer::DrawDistanceJoint(*dj);
 
         ImGui::SFML::Render(window);
         window.display();
