@@ -36,7 +36,6 @@ struct ShapeMatchingConstraint
 {
     std::vector<uint32_t> indices;
     std::vector<glm::vec2> startPositions;
-    glm::vec2 startCenterMass;
     float compliance = 0.0f;
     float lambda = 0.0f;
 };

@@ -43,17 +43,14 @@ SoftBody CreateSoftPolygon(int segments)
     AddCollisionPointsToLoop(softBody);
     AddCollisionShapeToLoop(softBody);
 
-    // glm::vec2 centerPosition = ComputeGeometryCenter(softBody.pointMasses.positions);
-    glm::vec2 centerMass = ComputeMassCenter(softBody.pointMasses.positions, softBody.pointMasses.inverseMasses);
-    ShapeMatchingConstraint shapeMatchingConstraint;
-    shapeMatchingConstraint.startCenterMass = centerMass;
-    shapeMatchingConstraint.compliance = .8f;
-    shapeMatchingConstraint.lambda = 0.0f;
-    for (int i = 0; i < segments; ++i)
-    {
-        shapeMatchingConstraint.startPositions.push_back(softBody.pointMasses.positions[i]);
-        shapeMatchingConstraint.indices.push_back(i);
-    }
+    // ShapeMatchingConstraint shapeMatchingConstraint;
+    // shapeMatchingConstraint.compliance = 0.1f;
+    // for (int i = 0; i < segments; ++i)
+    // {
+    //     shapeMatchingConstraint.indices.push_back(i);
+    //     shapeMatchingConstraint.startPositions.push_back(softBody.pointMasses.positions[i]);
+    // }
+    // shapeMatchingConstraint.startPositions[0] += glm::vec2(50.0f, 50.0f);glm::vec2 goal = с.startPositions[i];
     // softBody.shapeMatchingConstraints.push_back(shapeMatchingConstraint);
 
     // PinConstraint pinConstraint;

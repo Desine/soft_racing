@@ -77,18 +77,19 @@ SoftBody LoadSoftBodyFromFile(const std::string &filename)
         ShapeMatchingConstraint constraint;
         constraint.compliance = smc.value("compliance", 0.0f);
 
-        std::vector<float> inverseMasses;
-
         for (const auto &idx : smc["indices"])
-        {
             constraint.indices.push_back(idx);
-            inverseMasses.push_back(softBody.pointMasses.inverseMasses[idx]);
+
+        if (smc.contains("startPositions"))
+        {
+            for (const auto &sp : smc["startPositions"])
+                constraint.startPositions.emplace_back(sp[0], sp[1]);
         }
-
-        for (const auto &sp : smc["startPositions"])
-            constraint.startPositions.emplace_back(sp[0], sp[1]);
-
-        constraint.startCenterMass = ComputeMassCenter(softBody.pointMasses.positions, inverseMasses);
+        else
+        {
+            for (const auto index : constraint.indices)
+                constraint.startPositions.push_back(softBody.pointMasses.positions[index]);
+        }
 
         softBody.shapeMatchingConstraints.push_back(constraint);
     }

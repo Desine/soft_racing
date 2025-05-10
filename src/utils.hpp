@@ -38,3 +38,10 @@ inline float OrientedAngle2D(const glm::vec2& a, const glm::vec2& b)
     float cross = a.x * b.y - a.y * b.x;
     return (cross < 0.0f) ? -angle : angle;
 }
+
+inline glm::mat2 RotationMatrixFromAngle2D(float angle)
+{
+    float c = cos(angle);
+    float s = sin(angle);
+    return glm::mat2(c, -s, s, c);
+}
